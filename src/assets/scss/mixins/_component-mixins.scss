@@ -1,0 +1,114 @@
+// _component-mixins.scss
+
+// Definición de tipos de botones
+$button-types: (
+  solid: (
+    bg-color: var(--primary-color),
+    text-color: #FFF,
+    hover-bg-color: var(--text-invert),
+    hover-text-color: var(--text-color),
+    border-color: var(--primary-color)
+  ),
+  outline: (
+    bg-color: transparent,
+    text-color: var(--text-invert),
+    hover-bg-color: var(--text-color),
+    hover-text-color: #FFF,
+    border-color: var(--text-invert)
+  ),
+  whatsapp: (
+    bg-color: #00BB2D,
+    text-color: var(--text-contrast-color),
+    hover-bg-color: #04c230,
+    hover-text-color: #FFF,
+    border-color: #00BB2D
+  )
+);
+
+// Mixin de botón principal
+@mixin button(
+  $type: solid, 
+  $width: auto, 
+  $max-width: 300px,
+  $padding: 8px 16px,
+  $border-radius: 0px
+) {
+  // Obtener configuración del tipo de botón
+  $button-config: map-get($button-types, $type);
+  
+  @if $button-config == null {
+    @error "Tipo de botón '#{$type}' no está definido.";
+  }
+
+  // Configuraciones base del botón
+  @include flex(center, 10px);
+  @include text(1.4rem, 500, 1.8rem, center);
+
+  // Estilos específicos del botón
+  width: $width;
+  max-width: $max-width;
+  padding: $padding;
+  border-radius: $border-radius;
+  
+  // Estilos de color y estado
+  background-color: map-get($button-config, bg-color);
+  color: map-get($button-config, text-color);
+  border: 1px solid map-get($button-config, border-color);
+
+  // Propiedades de transición
+  text-decoration: none;
+  letter-spacing: 1px;
+  text-wrap: nowrap;
+  transition: all 0.1s linear;
+  will-change: auto;
+
+  // Estados del botón
+  &:not(:disabled) {
+    &:hover {
+      cursor: pointer;
+      background-color: map-get($button-config, hover-bg-color);
+      color: map-get($button-config, hover-text-color);
+      border-color: map-get($button-config, hover-text-color);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+  }
+
+  // Estado deshabilitado
+  &:disabled {
+    cursor: default;
+    opacity: 0.3;
+  }
+
+  // Estilos para elementos internos
+  a, .icon {
+    color: inherit;
+  }
+}
+
+// Ejemplos de uso
+.button-solid {
+  @include button(solid);
+}
+
+.button-outline {
+  @include button(outline);
+}
+
+.button-whatsapp {
+  @include button(whatsapp);
+}
+
+// Ejemplo de personalización
+.button-custom {
+  @include button(
+    $type: solid, 
+    $width: 100%, 
+    $max-width: 250px, 
+    $padding: 12px 24px,
+    $border-radius: 8px
+  );
+}

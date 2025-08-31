@@ -1,0 +1,19 @@
+// _animation-mixins.scss
+@mixin load(){
+  background: linear-gradient(
+      90deg,
+      rgba(221, 221, 221, 0.6) 8%,
+      rgba(238, 238, 238, 0.6) 25%,
+      rgba(221, 221, 221, 0.6) 50%
+    );
+    animation: backgroundPulse forwards 7s linear infinite;
+}
+
+@keyframes backgroundPulse {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 100em 0;
+  }
+}

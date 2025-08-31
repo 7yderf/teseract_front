@@ -1,0 +1,8 @@
+// _typography-mixins.scss
+@mixin text($size, $weight: initial, $line-height: initial, $align: initial) {
+  font-style: normal;
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $line-height;
+  text-align: $align;
+}

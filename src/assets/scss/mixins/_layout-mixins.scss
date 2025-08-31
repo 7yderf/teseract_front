@@ -1,0 +1,53 @@
+// _layout-mixins.scss
+@mixin flex($justify:center, $gap: false, $alignItems: center) {
+  display: flex;
+  justify-content: $justify;
+  align-items: $alignItems;
+  @if $gap {
+    gap: $gap;
+  }
+}
+
+@mixin grid($columns, $gap) {
+  display: grid;
+  grid-template-columns: $columns;
+  gap: $gap;
+}
+
+@mixin content($width: 1500px, $padding: 0 16px) {
+  display: block;
+  width: 100%;
+  max-width: $width;
+  margin: 0 auto;
+  padding: $padding;
+}
+
+@mixin main-box($width: 100%, $padding: 32px, $min-height: inherit) {
+  @include flex(center, false, stretch);
+  width: $width;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  min-height: $min-height;
+  padding: $padding;
+}
+
+@mixin aside-box($width: 100%, $padding: 32px){
+  width: $width;
+  flex-grow: 1;
+  min-height: $width;
+  padding: $padding;
+}
+
+@mixin article-box($direccion: column, $padding: 8px) {
+  flex-direction: $direccion;
+  padding: $padding;
+  display: flex;
+  flex-grow: 1;
+}
+
+@mixin section-box($width: inherit, $padding: 8px, $min-height:24px) {
+  width: $width;
+  padding: $padding;
+  min-height: $min-height;
+  flex-grow: 1;
+}

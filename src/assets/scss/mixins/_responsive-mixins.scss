@@ -1,0 +1,52 @@
+// _responsive-mixins.scss
+@mixin for-size($size) {
+  @if $size == phone {
+    @media (max-width: 320px) {
+      @content;
+    }
+  } @else if $size == phone-mid {
+    @media (max-width: 375px) {
+      @content;
+    }
+  } @else if $size == phone-big {
+    @media (max-width: 425px) {
+      @content;
+    }
+  } @else if $size == phone-xbig {
+    @media (max-width: 535px) {
+      @content;
+    }
+  } @else if $size == tablet-small {
+    @media (max-width: 635px) {
+      @content;
+    }
+  } @else if $size == tablet-portrait {
+    @media (max-width: 768px) {
+      @content;
+    }
+  } @else if $size == tablet-landscape {
+    @media (max-width: 991px) {
+      @content;
+    }
+  } @else if $size == desktop {
+    @media (max-width: 1024px) {
+      @content;
+    }
+  } @else if $size == desktop-mid {
+    @media (max-width: 1200px) {
+      @content;
+    }
+  } @else if $size == desktop-mid-big {
+    @media (max-width: 1320px) {
+      @content;
+    }
+  } @else if $size == desktop-big {
+    @media (max-width: 1400px) {
+      @content;
+    }
+  } @else if $size == desktop-xbig {
+    @media (max-width: 1920px) {
+      @content;
+    }
+  }
+}

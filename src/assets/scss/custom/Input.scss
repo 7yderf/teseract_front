@@ -1,0 +1,494 @@
+/* ==========================================================================
+   Input Component Styles - Estructura reorganizada
+   ========================================================================== */
+
+   @import "../Mixins";
+
+   /* --------------------------------------------------------------------------
+      1. Variables y configuración global
+      -------------------------------------------------------------------------- */
+   // Variables para tipografía y elementos visuales
+   $font-input: var(--text-custom);
+   $font-input-black: var(--text-custom);
+   $label-active: #005099;
+   
+   // Variables para alturas de inputs
+   $input-height: 56px;
+   $height-medium: 46px;
+   $height-thin: 36px;
+   $height-fine: 26px;
+   
+   /* --------------------------------------------------------------------------
+      2. Resets y estilos para autofill
+      Previene comportamientos no deseados del navegador en inputs
+      -------------------------------------------------------------------------- */
+   input:-internal-autofill-selected {
+     background-color: transparent !important;
+     background-image: none !important;
+     color: $font-input !important;
+     &[data-font-black="true"]{
+       color: $font-input-black;
+     }
+   }
+   
+   input:-webkit-autofill,
+   input:-webkit-autofill:focus {
+       transition: background-color 600000s 0s, color 600000s 0s;
+       -webkit-box-shadow: 0 0 0px 1000px #fff inset; /* Fondo transparente */
+       box-shadow: 0 0 0px 1000px #fff inset; /* Fondo transparente */
+       -webkit-text-fill-color: inherit; /* Mantiene el color del texto */
+   }
+   
+   /* --------------------------------------------------------------------------
+      3. Estructura base del campo (.field)
+      Contenedor principal que envuelve tanto el input como sus elementos asociados
+      -------------------------------------------------------------------------- */
+   .field {
+     @include flex(center, false, stretch);
+     flex-direction: column;
+     margin-bottom: 4px;
+     flex-grow: 1;
+   
+     // Variante para filtros de búsqueda
+     &--filter-search {
+       width: 100%;
+       margin-bottom: 0;
+       .input {
+         padding-bottom: 0;
+         margin-bottom: 0;
+       }
+     }
+   
+     // Variante para datepicker
+     &--picker {
+       // max-width: 231px;
+       .input {
+         &__box {
+           padding: 0;
+           padding-right: 8px;
+           .dp {
+             &__main {
+               &[data-height='medium'] {
+                 .dp__input {
+                   height: $height-medium;
+                 }
+               }
+               &[data-height='thin'] {
+                 .dp__input {
+                   height: $height-thin;
+                 }
+               }
+               &[data-height='fine'] {
+                 .dp__input {
+                   height: $height-fine;
+                 }
+               }
+             }
+             &__input {
+               height: 56px;
+               padding-left: 20px!important;
+               padding: 0.2rem 0.5rem;
+               @include text(1.15rem, 400, 2.4rem);
+               border: none;
+               border-radius: 8px;
+               background-color: transparent;
+               color: $font-input;
+               &:hover {
+                 border-color: rgb(223, 223, 223);
+               }
+             }
+             &__menu {
+               @include text(1.3rem, 400, 2rem);
+             }
+             &__calendar_row {
+               margin: 0;
+             }
+             &__action_button {
+               @include text(1.1rem, 400, 2.4rem);
+               padding: 6px 10px 10px;
+               border-radius: 16px;
+             }
+             &__action_select {
+               background-color: #0087FF
+             }
+             &__selection_preview {
+               @include text(1.2rem, 500, 2.4rem);
+               color: $font-input;
+             }
+             &__input_icon {
+               display: none;
+             }
+             &__button {
+               &[aria-label="Open time picker"] {
+                 display: none;
+               }
+             }
+           }
+           
+           // Modificador para modo tiempo
+           &--time {
+             .dp {
+               &__button {
+                 &[aria-label="Open time picker"] {
+                   display: flex;
+                 }
+               }
+             }
+           }
+         }
+       }
+     }
+   }
+   
+   /* --------------------------------------------------------------------------
+      4. Componente de etiqueta (.label)
+      Maneja la animación y posicionamiento de las etiquetas flotantes
+      -------------------------------------------------------------------------- */
+   .label {
+     @include text(1.3rem, 400, 1.4rem, left);
+     @include flex(center, false, stretch);
+     color: $font-input;
+     align-self: flex-start;
+     flex-grow: 1;
+     margin-top: 20px;
+     left: 40px;
+    
+     // tipo de label
+      &[data-label="true"] {
+        position: absolute;
+        transition: translateY(0px);
+        transition: transform .3s ease;
+        
+      }
+
+     // Variantes de altura
+     &[data-height="medium"][data-label="true"] {
+       margin-top: 14px;
+     }
+     &[data-height="thin"][data-label="true"] {
+       margin-top: 11px;
+       @include text(1.1rem, 400, 1.2rem, left);
+     }
+     &[data-height="fine"][data-label="true"] {
+       margin-top: 3px;
+     }
+     
+     // Con/sin icono
+     &[data-withIcon="false"] {
+       left: 16px;
+     }
+   
+     // Variante de color
+     &[data-font-white="true"] {
+       color: $font-input-black;
+     }
+     
+     &__text {
+       flex-grow: 1;
+     }
+     
+     // Estado activo/enfocado
+     &[data-focus="true"] {
+       @include text(1.2rem, 400, 1.2rem, left);
+       color: $label-active;
+
+      // tipo de label
+
+       &[data-label="true"] {
+        transform: translateY(-30px);
+        transition: transform .3s ease;
+        background-color: white;
+      }
+       
+       // Variantes de altura en estado activo
+       &[data-height="medium"][data-label="true"] {
+         transform: translateY(-26px);
+       }
+       &[data-height="thin"][data-label="true"] {
+         transform: translateY(-24px);
+       }
+       &[data-height="fine"][data-label="true"] {
+         transform: translateY(-19px);
+       }
+     }
+   }
+   
+   /* --------------------------------------------------------------------------
+      5. Componente principal de entrada (.input)
+      Define la apariencia y comportamiento base del input y sus contenedores
+      -------------------------------------------------------------------------- */
+   .input {
+     $root: &;
+     border-radius: 5px;
+     
+     /* 5.1 Contenedor del input */
+     &__box {
+       @include flex(center, false, center);
+       position: relative;
+       @include border(rgb(223, 223, 223), 8px);
+       padding: 2px 16px;
+       margin-bottom: 8px;
+       background-color: transparent;
+       background-image: blur(10px);
+       
+       // Estados del contenedor
+       &[data-focus="true"] {
+         border: 1px solid rgb(0, 8, 255) !important;
+       }
+       
+       &:hover {
+         background: #f7f7f7;
+         .input__input {
+           background: transparent;
+         }
+       }
+       
+       &[data-empty="false"] {
+         &:hover {
+           background: white;
+           .input__input {
+             background: transparent;
+           }
+         }
+       }
+       
+       &[data-readOnly="true"] {
+         background: #f7f7f7;
+         border-color: rgb(223, 223, 223)!important;
+         &:hover {
+           background: #f7f7f7;
+           .input__input {
+             background: transparent;
+           }
+         }
+       }
+     }
+   
+     /* 5.2 Campo de entrada */
+     &__input {
+       @include text(1.15rem, 400, 2.4rem);
+       border: none;
+       color: $font-input;
+       padding-left: 8px;
+       padding-right: 8px;
+       width: 100%;
+       height: $input-height;
+       background: transparent;
+       
+       // Placeholder
+       &::placeholder {
+         @include text(1.3rem, 100, 2.4rem);
+         letter-spacing: .4px;
+         color: $font-input;
+       }
+       
+       // Variante de color
+       &[data-font-black="true"] {
+         color: $font-input-black;
+         &::placeholder {
+           color: $font-input-black;
+           font-weight: 300;
+         }
+       }
+       
+       // Variantes de tipo
+       &--select {
+         cursor: pointer;
+       }
+       
+       &--textarea {
+         height: auto;
+       }
+       
+       // Variantes de altura
+       &[data-height='medium'] {
+         height: $height-medium
+       }
+       
+       &[data-height='thin'] {
+         height: $height-thin;
+         @include text(1.1rem, 400, 2.2rem);
+       }
+       
+       &[data-height='fine'] {
+         height: $height-fine;
+       }
+     }
+   
+     /* 5.3 Mensaje de error */
+     &__text-danger {
+       font-size: 1.1rem;
+       line-height: normal;
+       color: var(--error-color);
+       left: 3px;
+     }
+   
+     /* 5.4 Estado de error */
+     &[data-error="true"] {
+       border: 1px solid var(--error-color);
+     }
+   
+     &__error {
+       @include text(1.2rem, 400, 1.5rem);
+       color: var(--error-color);
+     }
+     
+     /* 5.5 Variante blanca */
+     &--white {
+       @include border(#d9d9d9, 5px);
+       color: var(--text-color);
+       
+       &::placeholder {
+         @include text(1.6rem, 400, 2.4rem);
+         color: #9a9a9a;
+       }
+     }
+   }
+   
+   /* --------------------------------------------------------------------------
+      6. Elementos adicionales e iconos
+      Maneja los elementos interactivos como botones e iconos dentro del input
+      -------------------------------------------------------------------------- */
+   .input {
+     /* 6.1 Iconos y elementos interactivos */
+     &__bullet {
+       &--pointer {
+         cursor: pointer;
+       }
+     }
+     
+     /* 6.2 Mostrar/ocultar contraseña */
+     &__hide-pass {
+       margin-right: 4px;
+     }
+     
+     &__show-pass {
+       margin-right: 4px;
+     }
+     
+     /* 6.3 Indicadores de validación */
+     &__check-success {
+       filter: invert(85%) sepia(34%) saturate(4799%) hue-rotate(90deg) brightness(94%) contrast(98%);
+     }
+     
+     &__check-danger {
+       filter: invert(17%) sepia(100%) saturate(5161%) hue-rotate(339deg) brightness(106%) contrast(110%);
+     }
+     
+     &__check--select {
+       &[data-check='true'] {
+         filter: invert(85%) sepia(34%) saturate(4799%) hue-rotate(90deg) brightness(94%) contrast(98%);
+       }
+     }
+   }
+   
+   /* --------------------------------------------------------------------------
+      7. Posicionamiento de iconos
+      Maneja la posición de los iconos dentro del input
+      -------------------------------------------------------------------------- */
+   .input-icon {
+     position: relative;
+     
+     &--icon {
+       position: absolute;
+       height: 100%;
+       left: 15px;
+       top: 0px;
+       fill: #9a9a9a;
+     }
+   }
+   
+   .input--icon {
+     padding-left: 40px;
+   }
+   
+   /* --------------------------------------------------------------------------
+      8. Variantes específicas de inputs
+      Estilos específicos para diferentes tipos de inputs (actualmente vacíos en el código original)
+      Mantienen reservado el espacio para futuras implementaciones
+      -------------------------------------------------------------------------- */
+   .input {
+     &--radio {
+       // Estilos para inputs de tipo radio
+     }
+     
+     &--check {
+       // Estilos para inputs de tipo checkbox
+     }
+     
+     &--file {
+       // Estilos para inputs de tipo file
+     }
+   
+     &__area {
+      height: auto!important;
+       // Estilos para textarea
+     }
+     
+     &__checkbox {
+       // Estilos para checkbox
+     }
+     
+     &__checkbox-error {
+       // Estilos para checkbox con error
+     }
+     
+     &__radio {
+       // Estilos para radio buttons
+     }
+     
+     &__radio-error {
+       // Estilos para radio buttons con error
+     }
+     
+     &__select {
+       padding-left: 8px;
+       &[data-require="true"] {
+         border: 1px solid var(--error-color);
+       }
+     }
+     
+     &__select-value {
+       // Estilos para valores de select
+     }
+     
+     &__select-options {
+       // Estilos para opciones de select
+     }
+     
+     &__select-option {
+       // Estilos para una opción individual de select
+     }
+     
+     &__file {
+       // Estilos para input file
+     }
+     
+     &__profile {
+       // Estilos para perfil
+     }
+     
+     &__profile-image {
+       // Estilos para imagen de perfil
+     }
+     
+     &__show {
+       // Estilos para mostrar contraseña
+     }
+     
+     &__text {
+       &--check {
+         // Estilos para texto de checkbox
+       }
+       
+       &--radio {
+         // Estilos para texto de radio
+       }
+     }
+   }
+   
+   /* --------------------------------------------------------------------------
+      9. Media queries y responsive
+      Importa estilos responsivos desde un archivo separado
+      -------------------------------------------------------------------------- */
+  //  @import "../responsive/Input";

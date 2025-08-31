@@ -1,0 +1,359 @@
+@import "../Mixins";
+
+// variable para el texto
+$font-input: var(--text-custom);
+$label-active: #005099;
+$font-input-black: var(--text-custom);
+$input-height: 56px;
+$height-medium: 46px;
+$height-thin: 36px;
+$height-fine: 26px;
+
+input:-internal-autofill-selected {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: $font-input !important;
+  &[data-font-black="true"]{
+    color: $font-input-black;
+  }
+}
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset; /* Fondo transparente */
+    box-shadow: 0 0 0px 1000px #fff inset; /* Fondo transparente */
+    -webkit-text-fill-color: inherit; /* Mantiene el color del texto */
+  }
+.field{
+  @include flex(center, false, stretch);
+  flex-direction: column;
+  // flex-grow: 1;
+  margin-bottom: 4px;
+  &--filter-search{
+    width: 100%;
+    margin-bottom: 0;
+    .input{
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.field--picker{
+  // max-width: 231px;
+  .input{
+    &__box{
+      padding: 0;
+      padding-right: 8px;
+      .dp{
+        &__main{
+          &[data-height='medium']{
+            .dp__input{
+              height: $height-medium;
+            }
+          }
+          &[data-height='thin']{
+            .dp__input{
+              height: $height-thin;
+            }
+          }
+          &[data-height='fine']{
+            .dp__input{
+              height: $height-fine;
+            }
+          }
+        }
+        &__input{
+          height: 56px;
+          padding-left: 20px!important;
+          padding: 0.2rem 0.5rem;
+          @include text(1.15rem, 400, 2.4rem);
+          border: none;
+          border-radius: 8px;
+          background-color: transparent;
+          color: $font-input;
+          &:hover{
+            border-color: rgb(223, 223, 223);
+          }
+
+        }
+        &__menu{
+          @include text(1.3rem, 400, 2rem);
+        }
+        &__calendar_row{
+          margin: 0;
+        }
+        &__action_button{
+          @include text(1.1rem, 400, 2.4rem);
+          padding: 6px 10px 10px;
+          border-radius: 16px;
+        }
+        &__action_select{
+          background-color: #0087FF
+        }
+        &__selection_preview{
+          @include text(1.2rem, 500, 2.4rem);
+          color: $font-input;
+        }
+        &__input_icon{
+          display: none;
+        }
+        &__button{
+          &[aria-label="Open time picker"]{
+            display: none;
+          }
+
+        }
+      }
+      &--time{
+        .dp{
+          &__button{
+            &[aria-label="Open time picker"]{
+              display: flex;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.label {
+  @include text(1.3rem, 400, 1.4rem, left);
+  @include flex(center, false, stretch);
+  color: $font-input;
+  align-self: flex-start; //opcional
+  flex-grow: 1;
+  // z-index: 1;
+  margin-top: 20px;
+  left: 40px;
+  position: absolute;
+  transition: translateY(0px);
+  transition: transform .3s ease;
+  &[data-height="medium" ]{
+    margin-top: 14px;
+  }
+  &[data-height="thin" ]{
+    margin-top: 11px;
+    @include text(1.1rem, 400, 1.2rem, left);
+  }
+  &[data-height="fine" ]{
+    margin-top: 3px;
+  }
+  &[data-withIcon="false" ]{
+    left: 16px;
+  }
+
+
+  &[data-font-white="true"]{
+    color: $font-input-black;
+  }
+  // &::after {
+  //   content: "*";
+  //   color: var(--error-color);
+  // }
+  &__text{
+    flex-grow: 1;
+  }
+  &[data-focus="true"]{
+    @include text(1.2rem, 400, 1.2rem, left);
+    color: $label-active;
+    transform: translateY(-30px);
+    transition: transform .3s ease;
+    background-color: white;
+    &[data-height="medium" ]{
+      transform: translateY(-26px);
+    }
+    &[data-height="thin" ]{
+      transform: translateY(-24px);
+    }
+    &[data-height="fine" ]{
+      transform: translateY(-19px);
+    }
+  }
+}
+
+.input {
+  $root: &;
+  &__box{
+    @include flex(center, false, center);
+    position: relative;
+    @include border(rgb(223, 223, 223), 8px);
+    padding: 2px 16px;
+    margin-bottom: 8px;
+    background-color: transparent;
+    background-image: blur(10px);
+    // &[data-font-black="true"]{
+    //   @include border(rgb(223, 223, 223));
+    // }
+    &[data-focus="true"]{
+      border: 1px solid rgb(0, 8, 255) !important;
+    }
+    &:hover{
+      background: #f7f7f7;
+      .input__input{
+        background: transparent;
+      }
+    }
+    &[data-empty="false"]{
+      &:hover{
+        background: white;
+        .input__input{
+          background: transparent;
+        }
+      }
+    }
+    &[data-readOnly="true"]{
+      background: #f7f7f7;
+      border-color: rgb(223, 223, 223)!important;
+      &:hover{
+        background: #f7f7f7;
+        .input__input{
+          background: transparent;
+        }
+      }
+    }
+  }
+
+  &__input {
+    @include text(1.15rem, 400, 2.4rem);
+    border: none;
+    color: $font-input;
+    padding-left: 8px;
+    padding-right: 8px;
+    width: 100%;
+    height: $input-height;
+    background: transparent;
+    &::placeholder {
+      @include text(1.3rem, 100, 2.4rem);
+      letter-spacing: .4px;
+      color: $font-input;
+    }
+    &[data-font-black="true"]{
+      color: $font-input-black;
+      &::placeholder {
+        color: $font-input-black;
+        font-weight: 300;
+      }
+    }
+    &--select{
+      cursor: pointer;
+      // height: 40px;
+    }
+    &--textarea{
+      height: auto;
+    }
+    &[data-height='medium']{
+      height: $height-medium
+    }
+    &[data-height='thin']{
+      height: $height-thin;
+      @include text(1.1rem, 400, 2.2rem);
+    }
+    &[data-height='fine']{
+      height: $height-fine;
+    }
+  }
+  &__bullet{
+    &--pointer{
+      cursor: pointer;
+    }
+  }
+  &__hide-pass{margin-right: 4px;}
+  &__show-pass{margin-right: 4px;}
+  &__check-success{
+    filter: invert(85%) sepia(34%) saturate(4799%) hue-rotate(90deg) brightness(94%) contrast(98%);
+  }
+  &__check-danger{
+    filter: invert(17%) sepia(100%) saturate(5161%) hue-rotate(339deg) brightness(106%) contrast(110%);;
+  }
+  &__check--select{
+    // filter: invert(1);
+    &[data-check='true']{
+      filter: invert(85%) sepia(34%) saturate(4799%) hue-rotate(90deg) brightness(94%) contrast(98%);
+    }
+    // &[data-check='false']{
+    //   filter: invert(17%) sepia(100%) saturate(5161%) hue-rotate(339deg) brightness(106%) contrast(110%);;
+    // }
+  }
+  &__text-danger{
+    font-size: 1.1rem;
+    line-height: normal;
+    color: var(--error-color);
+    left: 3px;
+  }
+  &--white {
+    @include border(#d9d9d9, 5px);
+    color: var(--text-color);
+  }
+  &--white::placeholder {
+    @include text(1.6rem, 400, 2.4rem);
+    color: #9a9a9a;
+  }
+  &[data-error="true"] {
+    border: 1px solid var(--error-color);
+  }
+  border-radius: 5px;
+  &__error {
+    @include text(1.2rem, 400, 1.5rem);
+    color: var(--error-color);
+  }
+  &--radio {
+  }
+  &--check {
+  }
+  &--file {
+  }
+
+  &__area {
+  }
+  &__checkbox {
+  }
+  &__checkbox-error {
+  }
+  &__radio {
+  }
+  &__radio-error {
+  }
+  &__select {
+    padding-left: 8px;
+    &[data-require="true"] {
+      border: 1px solid var(--error-color);
+    }
+  }
+  &__select-value {
+  }
+  &__select-options {
+  }
+  &__select-option {
+  }
+  &__file {
+  }
+  &__profile {
+  }
+  &__profile-image {
+  }
+  &__show {
+  }
+  &__text {
+    &--check {
+    }
+    &--radio {
+    }
+  }
+}
+.input-icon {
+  position: relative;
+}
+.input-icon--icon {
+  position: absolute;
+
+  height: 100%;
+  left: 15px;
+  top: 0px;
+  fill: #9a9a9a;
+}
+.input--icon {
+  padding-left: 40px;
+}
+
