@@ -9,10 +9,10 @@ import { useAuthStore } from "../modules/login/store/StoreAuth";
 
 const childrensAdmin = [
   {
-    path: "/reports",
-    name: "reports",
+    path: "/documents",
+    name: "documents",
     components: {
-      default: () => import("../views/ReportsView.vue"),
+      default: () => import("../views/DocumentView.vue"),
     },
     meta: {},
   },
@@ -52,7 +52,7 @@ const router = createRouter({
     },
     {
       path: "/admin",
-      redirect: "/users",
+      redirect: "/documents",
       component: LayoutAdmin,
       meta: {
         requiresAuth: true,
@@ -77,7 +77,7 @@ router.beforeEach((to) => {
   }
 
   if (auth.value && to.meta?.module === "auth") {
-    return "/reports";
+    return "/documents";
   }
 
   return true;

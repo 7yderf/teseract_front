@@ -18,7 +18,7 @@ const optionsSweet = {
 
 export function showAlert(
   type: "success" | "error" | "warning",
-  message = null,
+  message:any = null,
   timer = 4000
 ) {
   const options = {
