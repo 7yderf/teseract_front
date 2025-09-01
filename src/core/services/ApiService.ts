@@ -32,9 +32,9 @@ class ApiService {
     ] = `Bearer ${JwtService.getToken()}`;
     
     // Headers para CORS y tipos de contenido
-    ApiService.vueInstance.axios.defaults.headers.common["Accept"] = "application/json";
+  
     ApiService.vueInstance.axios.defaults.headers.common["Content-Type"] = "application/json";
-    ApiService.vueInstance.axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+    
 
   }
 
@@ -49,7 +49,7 @@ class ApiService {
    * @description send the GET HTTP request
    */
   static get(resource: any, slug = "") {
-    return ApiService.vueInstance.axios.get(`${resource}/${slug}`);
+    return ApiService.vueInstance.axios.get(`${resource}${slug ? `/${slug}` : ""}`);
   }
 
   /**

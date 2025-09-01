@@ -28,18 +28,15 @@ interface DocumentListResponse {
 
 // Servicios API separados
 const documentServices = {
-  async getDocuments() {
-    const { data } = await ApiService.get('/api/v1/documents/list');
-    return data;
-  },
+  
 
   async getDocument(id: number) {
-    const { data } = await ApiService.get(`/api/v1/documents/download/${id}`);
+    const { data } = await ApiService.get(`/documents/download/${id}`);
     return data;
   },
 
   async uploadDocument(document: UploadDocumentData) {
-    const { data } = await ApiService.post('/api/v1/documents/upload', {
+    const { data } = await ApiService.post('/documents/upload', {
       data: {
         attributes: {
           name: document.name,
@@ -53,7 +50,7 @@ const documentServices = {
   },
 
   async shareDocument(documentId: number, sharedWithEmail: string, encryptedKey: string) {
-    const { data } = await ApiService.post('/api/v1/documents/share', {
+    const { data } = await ApiService.post('/documents/share', {
       data: {
         attributes: {
           document_id: documentId,
@@ -125,52 +122,7 @@ export function useDocuments() {
     });
   };
 
-    // Query para obtener la lista de documentos
-  const documentsQuery = useQuery({
-    queryKey: ['documents'],
-    queryFn: async () => {
-      try {
-        documentsStore.setLoading(true);
-        documentsStore.setError(null);
-        
-        const data = await documentServices.getDocuments();
-        
-        if (data?.data?.attributes) {
-          const { own = [], shared = [] } = data.data.attributes;
-          
-          // Transformar los datos para que coincidan con nuestra interfaz
-          const formattedData: DocumentListResponse = {
-            own: own.map((doc: any) => ({
-              id: doc.id,
-              name: doc.name,
-              mimeType: doc.mime_type,
-              createdAt: doc.created_at
-            })),
-            shared: shared.map((doc: any) => ({
-              id: doc.id,
-              name: doc.name,
-              mimeType: doc.mime_type,
-              createdAt: doc.created_at,
-              sharedBy: doc.shared_by
-            }))
-          };
-          
-          documentsStore.setDocuments(formattedData);
-          return formattedData;
-        }
-        
-        return { own: [], shared: [] };
-      } catch (error: any) {
-        const message = error?.response?.data?.errors?.[0]?.detail || 'Error al cargar documentos';
-        documentsStore.setError(message);
-        showAlert('error', message);
-        throw error;
-      } finally {
-        documentsStore.setLoading(false);
-      }
-    },
-    retry: 1
-  });
+
 
   // Query para obtener un documento específico
   const getDocumentQuery = (documentId: number) => useQuery({
@@ -244,7 +196,6 @@ export function useDocuments() {
 
   return {
     // Queries y mutaciones
-    documents: documentsQuery,
     getDocument: getDocumentQuery,
     upload: uploadDocumentMutation.mutate,
     share: shareDocumentMutation.mutate,
