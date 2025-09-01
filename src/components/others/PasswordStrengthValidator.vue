@@ -1,7 +1,8 @@
 <template>
   <div class="mb-10">
     <div class="row my-2">
-      <div class="col text-center fw-bolder position-relative">
+      <div class="flex justify-around">
+        <div class="col text-center fw-bolder relative">
         <p class="check__font">T</p>
         <span 
           v-if="checks.mayus"
@@ -15,7 +16,7 @@
           />
         </span>
       </div>
-      <div class="col text-center fw-bolder position-relative">
+      <div class="col text-center fw-bolder relative">
         <p class="check__font">t</p>
         <span 
           v-if="checks.minus"
@@ -29,7 +30,7 @@
           />
         </span>
       </div>
-      <div class="col text-center fw-bolder position-relative">
+      <div class="col text-center fw-bolder relative">
         <p class="check__font">1</p>
         <span
           v-if="checks.number"
@@ -43,7 +44,7 @@
           />
         </span>
       </div>
-      <div class="col text-center fw-bolder position-relative">
+      <div class="col text-center fw-bolder relative">
         <p class="check__font">!</p>
         <span
           v-if="checks.special"
@@ -57,11 +58,8 @@
           />
         </span>
       </div>
-      <div class="col text-center fw-bolder position-relative">
+      <div class="col text-center fw-bolder relative">
         <p class="check__font">+{{ characters }}</p>
-        <p class="fs-8">
-          {{ characters }} caracteres
-        </p>
         <span
           v-if="checks.min"
           class="check__content"
@@ -73,6 +71,7 @@
             :class="'success'"
           />
         </span>
+      </div>
       </div>
       <label class="check__label">
         Al menos una mayúscula, una minúscula, un número, un símbolo y {{ characters }} caracteres.

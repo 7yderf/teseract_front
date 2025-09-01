@@ -4,7 +4,7 @@ import * as yup from 'yup';
 export const schema = ({ characters, regex }: { characters: number; regex: RegExp }) => {
 
   return yup.object().shape({
-    name: yup.string().required('Dato obligatorio').matches(/^[^0-9]+$/, 'Solo letras').max(100, 'Maximo 100 caracteres'),
+    // name: yup.string().required('Dato obligatorio').matches(/^[^0-9]+$/, 'Solo letras').max(100, 'Maximo 100 caracteres'),
     email: yup
       .string()
       .required('El dato es obligatorio')
@@ -13,7 +13,7 @@ export const schema = ({ characters, regex }: { characters: number; regex: RegEx
         .min(characters, "Logitud minima de 8 caracteres")
         .matches(regex, "Debe respetar el formato de contraseña")
         .required("La contraseña es necesaria"),
-    password_confirmation: yup.lazy((value) => {
+    confirm_password: yup.lazy((value) => {
         return yup.string()
           .when("password", (password, schema) => {
             return schema.test({

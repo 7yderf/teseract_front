@@ -4,6 +4,7 @@ import { showAlert } from "@/composables/useAlerts.ts";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useAuthStore } from "@/modules/login/store/StoreAuth";
 import { storeToRefs } from "pinia";
+import { useRouter } from 'vue-router'
 
 const errors = ref<string[]>([]);
 
@@ -24,6 +25,7 @@ const register = async (body: any) => {
 
 const useAuth = () => {
   const authStore = useAuthStore();
+  const router = useRouter()
   const { sesion, formValuesAuth } = storeToRefs(authStore);
 
   const queryClient = useQueryClient();
@@ -57,9 +59,8 @@ const useAuth = () => {
   const registerMutation = useMutation({
     mutationFn: register,
     onSuccess: (data) => {
-      authStore.setUser(data);
       showAlert("success", data.meta.message);
-      window.location.href = "/";
+      router.push("/");
     },
     onError: (error) => {
       const err = error as any;

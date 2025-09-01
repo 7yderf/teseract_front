@@ -1,53 +1,100 @@
 /* eslint-disable no-undef */
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import JwtService from "@/core/services/JwtService";
 import ApiService from "@/core/services/ApiService";
 
+// Constantes para claves de localStorage
+const LOCAL_STORAGE_USER_KEY = "dataUser";
+
+// Interfaz para tipado del usuario
+interface UserData {
+  isAuth: boolean;
+  user: string | null;
+  role: string[];
+  id: number | null;
+}
+
+// Interfaz para tipado de la respuesta de la API
+interface UserResponse {
+  data: { 
+    attributes: { 
+      email: string; 
+      id: number; 
+      token: string; 
+      permissions: string 
+    } 
+  };
+}
+
+/**
+ * Obtiene los datos de usuario almacenados en localStorage
+ */
+const getStoreData = (): UserData | null => {
+  try {
+    return localStorage[LOCAL_STORAGE_USER_KEY] 
+      ? JSON.parse(localStorage[LOCAL_STORAGE_USER_KEY]) 
+      : null;
+  } catch {
+    console.warn("Error parsing user data from localStorage");
+    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+    return null;
+  }
+}
+
 export const useAuthStore = defineStore("auth", () => {
-  const getUser = () => ({
-    isAuth: localStorage.dataUser
-      ? JSON.parse(localStorage.dataUser).isAuth
-      : false,
-    user: localStorage.dataUser ? JSON.parse(localStorage.dataUser).user : null,
-    role: localStorage.dataUser ? JSON.parse(localStorage.dataUser).role : null,
-    id: localStorage.dataUser ? JSON.parse(localStorage.dataUser).id : null,
-  });
+  const storeData = getStoreData();
 
   const formValuesAuth = ref({
     email: '',
     password: '',
   });
 
-  const sesion = ref(getUser());
+  const sesion = reactive<UserData>({
+    isAuth: storeData?.isAuth || false,
+    user: storeData?.user || null,
+    role: storeData?.role || ["user"],
+    id: storeData?.id || null,
+  });
 
-  function setUser(user: {
-    data: { attributes: { email: any; id: any; token: any; permissions: any } };
-  }) {
-    sesion.value = {
-      isAuth: true,
-      user: user.data.attributes.email,
-      role: ["user"],
-      id: user.data.attributes.id,
-    };
-    localStorage.dataUser = JSON.stringify(sesion.value);
+  function setUser(user: UserResponse) {
+    sesion.isAuth = true;
+    sesion.user = user.data.attributes.email;
+    sesion.role = ["user"];
+    sesion.id = user.data.attributes.id;
+
+    // Guardar datos en localStorage y JWT
+    localStorage[LOCAL_STORAGE_USER_KEY] = JSON.stringify(sesion);
     JwtService.saveToken(user.data.attributes.token);
     JwtService.savePermissions(user.data.attributes.permissions);
   }
 
+  /**
+   * Limpia la sesión y elimina todos los datos de autenticación
+   */
   const cleanSession = () => {
-    window.localStorage.clear();
-    sesion.value = {
-      isAuth: false,
-      user: null,
-      role: ["user"],
-      id: null,
-    };
+    // Usar métodos específicos en lugar de clear
+    JwtService.destroyToken();
+    JwtService.destroyPermissions();
+    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+    
+    // Reiniciar estado
+    sesion.isAuth = false;
+    sesion.user = null;
+    sesion.role = ["user"];
+    sesion.id = null;
   };
 
+  /**
+   * Configura los headers de API si hay un token válido
+   */
   const setHeaders = () => {
-    if (!!JwtService.getToken()) ApiService.setHeader();
-    else cleanSession();
+    const token = JwtService.getToken();
+    if (token) {
+      ApiService.setHeader();
+    } else {
+      cleanSession();
+    }
   };
 
   return { sesion, setUser, setHeaders, cleanSession, formValuesAuth };

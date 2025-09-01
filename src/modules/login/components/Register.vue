@@ -10,7 +10,7 @@
       @submit="onSubmit"
     >
       <div class="flex flex-col gap-4 w-full">
-        <FormVTextInput
+        <!-- <FormVTextInput
           type="text"
           name="name"
           label="Nombre"
@@ -19,7 +19,7 @@
           :is-font-black="true"
           height="thin"
           :label-animation="true"
-        />
+        /> -->
       </div>
       <div class="flex flex-col gap-4 w-full">
         <FormVTextInput
@@ -50,8 +50,8 @@
       </div>
       <div class="flex flex-col gap-4 w-full">
         <FormVTextInput
-          :type="typeActivePassword['password_confirmation'] ? 'password' : 'text'"
-          name="password_confirmation"
+          :type="typeActivePassword['confirm_password'] ? 'password' : 'text'"
+          name="confirm_password"
           label="Confirmar contraseña"
           height="thin"
           :icon="'mdi:lock'"
@@ -109,7 +109,7 @@ const isPasswordValid = ref(false)
 
 const typeActivePassword = ref({
   password: true,
-  password_confirmation: true,
+  confirm_password: true,
 })
 
 const showPass = (type: string, name: keyof typeof typeActivePassword.value) => {
@@ -129,10 +129,10 @@ const checkTerms = (val: Event) => {
 }
 
 const formValues = ref({
-  name: '',
+  // name: '',
   email: '',
   password: '',
-  password_confirmation: '',
+  confirm_password: '',
 })
 
 const characters = ref(8)
@@ -155,8 +155,12 @@ watch(
 const onSubmit = async (values: any) => {
   register({
     data: {
-      type: "auth",
-      attributes: values,
+      type: "users",
+      attributes: {
+        ...values,
+        role: 3,
+        confirmation: false
+      },
     }
   })
 }

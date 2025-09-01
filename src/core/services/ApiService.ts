@@ -19,19 +19,23 @@ class ApiService {
     ApiService.vueInstance.use(VueAxios, axios);
     ApiService.vueInstance.axios.defaults.baseURL =
       import.meta.env.VITE_APP_API_URL; // Cambiado de import.meta.env
+    
   }
 
   /**
    * @description set the default HTTP request headers
    */
   static setHeader() {
+    // Headers de autenticación
     ApiService.vueInstance.axios.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${JwtService.getToken()}`;
-    ApiService.vueInstance.axios.defaults.headers.common["Accept"] =
-      "application/vnd.api+json";
-    ApiService.vueInstance.axios.defaults.headers.common["Content-Type"] =
-      "application/vnd.api+json";
+    
+    // Headers para CORS y tipos de contenido
+    ApiService.vueInstance.axios.defaults.headers.common["Accept"] = "application/json";
+    ApiService.vueInstance.axios.defaults.headers.common["Content-Type"] = "application/json";
+    ApiService.vueInstance.axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+
   }
 
   /**

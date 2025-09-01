@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
 import LayoutAuth from "@/layouts/LayoutAuth.vue";
 import LayoutAdmin from "@/layouts/LayoutAdmin.vue";
@@ -19,7 +19,7 @@ const childrensAdmin = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes: [
     { path: "/404", component: NotFound },
     { path: "/:notFound(.*)", redirect: "/404" },
@@ -63,7 +63,7 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const { sesion, setHeaders } = useAuthStore();
 
   setHeaders();
