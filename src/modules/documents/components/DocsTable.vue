@@ -36,18 +36,16 @@
           </td>
           <td class="px-4 py-3">
             <div class="flex items-center justify-between">
+              <!-- boton para compartir -->
               <Icon
-                icon="bi:pencil-square"
+                icon="bi:share "
                 class="h-5 w-5 cursor-pointer text-gray-600 hover:text-primary-600"
               />
-              <label class="relative inline-flex cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  :checked="doc.id === 'Activa'"
-                  class="peer sr-only"
-                />
-                <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300"></div>
-              </label>
+              <!-- boton para descargar -->
+              <Icon
+                icon="bi:download "
+                class="h-5 w-5 cursor-pointer text-gray-600 hover:text-primary-600"
+              />
             </div>
           </td>
         </tr>
