@@ -71,6 +71,12 @@
       "label": "StoreDocument.ts",
       "type": "state",
       "language": "typescript"
+    },
+    {
+      "id": "src/components/shared/VDocumentUploader.vue",
+      "label": "VDocumentUploader.vue",
+      "type": "component",
+      "language": "vue"
     }
   ],
   "edges": [
@@ -137,6 +143,11 @@
     {
       "from": "src/modules/documents/composables/useDocument.ts",
       "to": "src/composables/useAlerts.ts",
+      "reason": "import"
+    },
+    {
+      "from": "src/views/DocumentView.vue",
+      "to": "src/components/shared/VDocumentUploader.vue",
       "reason": "import"
     }
   ]

@@ -20,6 +20,8 @@
     :companies="docs"
     :getPage="getPage"
     :load-with-sort="refetchDocs"
+    :onShare="handleShare"
+    :is-sharing="isSharing"
   />
 
   <div
@@ -100,9 +102,44 @@ const {
 const showUploadModal = ref(false);
 
 // Composable de documentos
-const { upload, encryptFile, isUploading } = useDocument();
+const { upload, encryptFile, isUploading, share, isSharing } = useDocument();
 
 // Métodos
+import { showAlert } from '@/composables/useAlerts';
+
+const handleShare = async (documentId: number, documentName: string, email: string) => {
+  try {
+    console.log('Intentando compartir documento:', { documentId, documentName, email });
+    // Obtener la clave de cifrado del documento usando el ID
+    const documentKey = localStorage.getItem(`document_key_${documentId}`);
+    console.log('Buscando clave con ID:', `document_key_${documentId}`);
+    console.log('Clave encontrada:', !!documentKey);
+    console.log('Valor de la clave:', documentKey);
+    
+    // Debug: Listar todas las claves en localStorage que empiezan con document_key_
+    const keys = Object.keys(localStorage).filter(key => key.startsWith('document_key_'));
+    console.log('Todas las claves de documentos en localStorage:', keys);
+    
+    if (!documentKey) {
+      throw new Error('No se encontró la clave del documento');
+    }
+
+    // Intentar compartir el documento
+    await share({
+      documentId,
+      sharedWithEmail: email,
+      encryptedKey: documentKey
+    });
+
+    showAlert('success', 'Documento compartido exitosamente');
+  } catch (error: any) {
+    console.error('Error completo:', error);
+    const errorMessage = error?.message || 'Error al compartir el documento';
+    showAlert('error', errorMessage);
+    throw error;
+  }
+};
+
 const handleDocumentUpload = async (file: File, name: string) => {
   try {
     // Cifrar el archivo

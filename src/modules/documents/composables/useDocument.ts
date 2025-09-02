@@ -11,6 +11,7 @@ export interface UploadDocumentData {
   mimeType: string;
   encryptedContent: string;
   encryptionIv: string;
+  tempKeyId: string;
 }
 
 interface DocumentResponse {
@@ -88,11 +89,12 @@ export function useDocument() {
         padding: CryptoJS.pad.Pkcs7
       });
       
-      // Guardar la clave de cifrado en localStorage (en producción debería cifrarse con RSA)
-      // Esto es solo para el MVP - en una implementación completa se usaría cifrado asimétrico
-      localStorage.setItem(`document_key_${file.name}`, key.toString(CryptoJS.enc.Hex));
+      // Guardamos temporalmente la clave con un identificador único temporal
+      const tempId = Date.now().toString();
+      localStorage.setItem(`temp_document_key_${tempId}`, key.toString(CryptoJS.enc.Hex));
       
       return {
+        tempKeyId: tempId, // Añadimos el ID temporal para poder actualizar la clave después
         encryptedContent: encrypted.toString(),
         encryptionIv: iv.toString(CryptoJS.enc.Base64),
         name: file.name,
@@ -168,7 +170,26 @@ export function useDocument() {
   // Mutación para subir un documento
   const uploadDocumentMutation = useMutation({
     mutationFn: (documentData: UploadDocumentData) => documentServices.uploadDocument(documentData),
-    onSuccess: (data) => {
+    onSuccess: (response: any, variables) => {
+      console.log('Response de upload:', response);
+      // Obtenemos el ID del documento del response
+      const documentId = response?.data?.id;
+      console.log('DocumentId extraído:', documentId);
+      
+      if (documentId && variables.tempKeyId) {
+        console.log('TempKeyId:', variables.tempKeyId);
+        // Obtenemos la clave temporal
+        const tempKey = localStorage.getItem(`temp_document_key_${variables.tempKeyId}`);
+        console.log('Clave temporal encontrada:', !!tempKey);
+        
+        if (tempKey) {
+          // Guardamos la clave con el ID real del documento
+          localStorage.setItem(`document_key_${documentId}`, tempKey);
+          console.log('Clave guardada con ID:', documentId);
+          // Eliminamos la clave temporal
+          localStorage.removeItem(`temp_document_key_${variables.tempKeyId}`);
+        }
+      }
       queryClient.invalidateQueries({ queryKey: ["page[size]"] });
       showAlert('success', 'Documento subido exitosamente');
     },
