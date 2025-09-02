@@ -46,10 +46,18 @@
                 }"
               />
               <!-- boton para descargar -->
-              <Icon
-                icon="bi:download"
-                class="h-5 w-5 cursor-pointer text-gray-600 hover:text-primary-600"
-              />
+              <button 
+                @click="() => handleDownload(Number(doc.attributes?.id || doc.id))"
+                :disabled="isDownloading"
+                class="relative inline-flex items-center"
+              >
+                <Icon
+                  :icon="isDownloading ? 'eos-icons:loading' : 'bi:download'"
+                  class="h-5 w-5 cursor-pointer text-gray-600 hover:text-primary-600"
+                  :class="{ 'animate-spin': isDownloading, 'cursor-not-allowed': isDownloading }"
+                  :title="isDownloading ? 'Descargando...' : 'Descargar documento'"
+                />
+              </button>
             </div>
           </td>
         </tr>
@@ -92,10 +100,11 @@ interface Props {
   loadWithSort: Function;
   getPage: (page: number) => void;
   onShare: (documentId: number, documentName: string, email: string) => Promise<void>;
+  onDownload: (documentId: number) => Promise<void>;
   isSharing: boolean;
+  isDownloading: boolean;
 }
 
-defineProps<Props>();
 
 // Estado para el modal de compartir
 const showShareModal = ref(false);
@@ -115,6 +124,17 @@ const handleShare = (id: number, name: string) => {
 const handleCloseShare = () => {
   showShareModal.value = false;
   selectedDoc.value = null;
+};
+
+const props = defineProps<Props>();
+
+// Función para manejar la descarga
+const handleDownload = async (id: number) => {
+  try {
+    await props.onDownload(id);
+  } catch (error) {
+    console.error('Error al descargar:', error);
+  }
 };
 </script>
 

@@ -21,7 +21,9 @@
     :getPage="getPage"
     :load-with-sort="refetchDocs"
     :onShare="handleShare"
+    :onDownload="handleDownload"
     :is-sharing="isSharing"
+    :is-downloading="isDownloading"
   />
 
   <div
@@ -101,9 +103,27 @@ const {
 
 // Estado local
 const showUploadModal = ref(false);
+const isDownloading = ref(false);
 
 // Composable de documentos
-const { upload, encryptFile, isUploading, share, isSharing } = useDocument();
+const { upload, encryptFile, isUploading, share, isSharing, downloadAndDecryptDocument } = useDocument();
+
+// Método para manejar la descarga
+const handleDownload = async (documentId: number) => {
+  console.log('🚀 ~ handleDownload ~ documentId:', documentId)
+  try {
+    isDownloading.value = true;
+    
+    // Usar el nuevo método que hace la petición al servicio
+    await downloadAndDecryptDocument(documentId);
+    showAlert('success', 'Documento descargado exitosamente');
+  } catch (error) {
+    console.error('Error al descargar:', error);
+    showAlert('error', error instanceof Error ? error.message : 'Error al descargar el documento');
+  } finally {
+    isDownloading.value = false;
+  }
+};
 
 // Métodos
 import { showAlert } from '@/composables/useAlerts';
