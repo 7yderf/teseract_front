@@ -69,6 +69,7 @@ import NoData from "@/components/shared/NoData.vue";
 import VDocumentUploader from '@/components/shared/VDocumentUploader.vue';
 import { useDocument } from '@/modules/documents/composables/useDocument';
 import { useRoute } from 'vue-router';
+import ApiService from '@/core/services/ApiService';
 
 
 const route = useRoute();
@@ -110,25 +111,112 @@ import { showAlert } from '@/composables/useAlerts';
 const handleShare = async (documentId: number, documentName: string, email: string) => {
   try {
     console.log('Intentando compartir documento:', { documentId, documentName, email });
-    // Obtener la clave de cifrado del documento usando el ID
-    const documentKey = localStorage.getItem(`document_key_${documentId}`);
-    console.log('Buscando clave con ID:', `document_key_${documentId}`);
-    console.log('Clave encontrada:', !!documentKey);
-    console.log('Valor de la clave:', documentKey);
     
-    // Debug: Listar todas las claves en localStorage que empiezan con document_key_
-    const keys = Object.keys(localStorage).filter(key => key.startsWith('document_key_'));
-    console.log('Todas las claves de documentos en localStorage:', keys);
+    // 1. Obtener la llave pública del usuario destino
+    const { data } = await ApiService.get(`/users/public-key?email=${encodeURIComponent(email)}`);
+    console.log('🚀 ~ handleShare ~ response:', data.data.attributes.public_key)
+    const destinationPublicKey = data.data.attributes.public_key;
     
-    if (!documentKey) {
+    if (!destinationPublicKey) {
+      throw new Error('No se pudo obtener la llave pública del usuario destino');
+    }
+
+    // 2. Obtener la clave AES cifrada del documento
+    const doc = docs.value.find(d => d.id === documentId);
+    console.log('🚀 ~ handleShare ~ doc:', doc)
+    if (!doc?.encrypted_key) {
       throw new Error('No se encontró la clave del documento');
     }
+
+    // 3. Descifrar la clave AES con nuestra llave privada
+    const privateKey = localStorage.getItem('private_key');
+    if (!privateKey) {
+      throw new Error('No se encontró tu llave privada');
+    }
+
+    // Imprimir valores para debug
+    console.log('Clave original:', doc.encrypted_key);
+    console.log('Clave privada:', privateKey);
+    
+    // Verificar que tenemos la clave encriptada
+    if (!doc.encrypted_key) {
+      console.error('La clave encriptada es undefined o null');
+      throw new Error('No se encontró la clave encriptada del documento');
+    }
+
+    // Asegurarse de que la clave está en formato base64 válido
+    const cleanedKey = doc.encrypted_key.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - cleanedKey.length % 4) % 4);
+    const base64Key = cleanedKey + padding;
+    
+    console.log('Clave limpia:', cleanedKey);
+    console.log('Clave con padding:', base64Key);
+
+    let encryptedKeyBuffer;
+    let importedPrivateKey;
+
+    try {
+      // Primero intentar importar la llave privada
+      const privateKeyBuffer = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0));
+      importedPrivateKey = await window.crypto.subtle.importKey(
+        "pkcs8",
+        privateKeyBuffer,
+        {
+          name: "RSA-OAEP",
+          hash: "SHA-256",
+        },
+        true, // extractable a true para debug
+        ["decrypt"]
+      );
+      
+      console.log('Llave privada importada correctamente');
+
+      // Luego intentar decodificar la clave del documento
+      encryptedKeyBuffer = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
+      console.log('Clave del documento decodificada correctamente');
+      
+    } catch (error) {
+      console.error('Error detallado:', error);
+      if (error instanceof Error) {
+        throw new Error(`Error al decodificar la clave: ${error.message}`);
+      } else {
+        throw new Error('Error al decodificar la clave del documento');
+      }
+    }
+
+    const decryptedKeyBuffer = await window.crypto.subtle.decrypt(
+      {
+        name: "RSA-OAEP"
+      },
+      importedPrivateKey,
+      encryptedKeyBuffer
+    );
+
+    // 4. Cifrar la clave AES con la llave pública del destinatario
+    const importedDestPublicKey = await window.crypto.subtle.importKey(
+      "spki",
+      Uint8Array.from(atob(destinationPublicKey), c => c.charCodeAt(0)),
+      {
+        name: "RSA-OAEP",
+        hash: "SHA-256",
+      },
+      false,
+      ["encrypt"]
+    );
+
+    const reEncryptedKey = await window.crypto.subtle.encrypt(
+      {
+        name: "RSA-OAEP"
+      },
+      importedDestPublicKey,
+      decryptedKeyBuffer
+    );
 
     // Intentar compartir el documento
     await share({
       documentId,
       sharedWithEmail: email,
-      encryptedKey: documentKey
+      encryptedKey: btoa(String.fromCharCode(...new Uint8Array(reEncryptedKey)))
     });
 
     showAlert('success', 'Documento compartido exitosamente');
@@ -142,8 +230,14 @@ const handleShare = async (documentId: number, documentName: string, email: stri
 
 const handleDocumentUpload = async (file: File, name: string) => {
   try {
-    // Cifrar el archivo
-    const encryptedData = await encryptFile(file);
+    // Obtener la clave pública del usuario del localStorage
+    const publicKey = localStorage.getItem('public_key');
+    if (!publicKey) {
+      throw new Error('No se encontró la clave pública del usuario');
+    }
+
+    // Cifrar el archivo con la clave pública
+    const encryptedData = await encryptFile(file, publicKey);
     
     // Personalizar el nombre si es diferente al nombre del archivo
     if (name !== file.name) {

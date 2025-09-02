@@ -1,6 +1,6 @@
 <template>
 	<div
-	    class="mt-5 d-flex justify-content-center align-items-center mt-5 border rounded border-dark-subtle w-100 flex-column p-5 gap-4 ">
+	    class=" w-full mt-5 d-flex justify-content-center align-items-center mt-5 border rounded border-dark-subtle w-100 flex-column p-5 gap-4 ">
 	    <Icon
 	      class="border rounded-circle p-3 bg-body-secondary"
 	      :icon="icon"

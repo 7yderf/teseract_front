@@ -22,7 +22,8 @@ interface UserResponse {
       email: string; 
       id: number; 
       token: string; 
-      permissions: string 
+      permissions: string;
+      public_key: string;
     } 
   };
 }
@@ -65,6 +66,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Guardar datos en localStorage y JWT
     localStorage[LOCAL_STORAGE_USER_KEY] = JSON.stringify(sesion);
+    localStorage.public_key = user.data.attributes.public_key;
     JwtService.saveToken(user.data.attributes.token);
     JwtService.savePermissions(user.data.attributes.permissions);
   }

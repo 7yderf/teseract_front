@@ -37,14 +37,20 @@
       "language": "vue"
     },
     {
-      "id": "src/components/shared/BaseModal.vue",
-      "label": "BaseModal.vue",
+      "id": "src/components/shared/VDocumentUploader.vue",
+      "label": "VDocumentUploader.vue",
       "type": "component",
       "language": "vue"
     },
     {
       "id": "src/modules/documents/composables/useDocument.ts",
       "label": "useDocument.ts",
+      "type": "logic",
+      "language": "typescript"
+    },
+    {
+      "id": "src/composables/useAlerts.ts",
+      "label": "useAlerts.ts",
       "type": "logic",
       "language": "typescript"
     },
@@ -61,22 +67,10 @@
       "language": "typescript"
     },
     {
-      "id": "src/composables/useAlerts.ts",
-      "label": "useAlerts.ts",
-      "type": "logic",
-      "language": "typescript"
-    },
-    {
       "id": "src/modules/documents/store/StoreDocument.ts",
       "label": "StoreDocument.ts",
       "type": "state",
       "language": "typescript"
-    },
-    {
-      "id": "src/components/shared/VDocumentUploader.vue",
-      "label": "VDocumentUploader.vue",
-      "type": "component",
-      "language": "vue"
     }
   ],
   "edges": [
@@ -107,12 +101,17 @@
     },
     {
       "from": "src/views/DocumentView.vue",
-      "to": "src/components/shared/BaseModal.vue",
+      "to": "src/components/shared/VDocumentUploader.vue",
       "reason": "import"
     },
     {
       "from": "src/views/DocumentView.vue",
       "to": "src/modules/documents/composables/useDocument.ts",
+      "reason": "import"
+    },
+    {
+      "from": "src/views/DocumentView.vue",
+      "to": "src/composables/useAlerts.ts",
       "reason": "import"
     },
     {
@@ -143,11 +142,6 @@
     {
       "from": "src/modules/documents/composables/useDocument.ts",
       "to": "src/composables/useAlerts.ts",
-      "reason": "import"
-    },
-    {
-      "from": "src/views/DocumentView.vue",
-      "to": "src/components/shared/VDocumentUploader.vue",
       "reason": "import"
     }
   ]

@@ -11,7 +11,7 @@ export interface UploadDocumentData {
   mimeType: string;
   encryptedContent: string;
   encryptionIv: string;
-  tempKeyId: string;
+  encryptedKey: string;
 }
 
 interface DocumentResponse {
@@ -20,6 +20,9 @@ interface DocumentResponse {
   mimeType: string;
   createdAt: string;
   sharedBy?: string;
+  encryptedKey?: string;
+  encryptedContent?: string;
+  encryptionIv?: string;
 }
 
 interface DocumentListResponse {
@@ -36,6 +39,77 @@ const documentServices = {
     return data;
   },
 
+  async downloadAndDecryptDocument(document: DocumentResponse) {
+    try {
+      // 1. Obtener la clave privada del almacenamiento local
+      const privateKey = localStorage.getItem('private_key');
+      if (!privateKey) {
+        throw new Error('No se encontró la clave privada');
+      }
+
+      // 2. Importar la clave privada
+      const privateKeyBuffer = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0));
+      const importedPrivateKey = await window.crypto.subtle.importKey(
+        "pkcs8",
+        privateKeyBuffer,
+        {
+          name: "RSA-OAEP",
+          hash: "SHA-256",
+        },
+        false,
+        ["decrypt"]
+      );
+
+      // Verificar que tenemos todos los datos necesarios
+      if (!document.encryptedKey || !document.encryptionIv || !document.encryptedContent) {
+        throw new Error('Faltan datos del documento cifrado');
+      }
+
+      // 3. Descifrar la clave AES
+      const encryptedKeyBuffer = Uint8Array.from(atob(document.encryptedKey), c => c.charCodeAt(0));
+      const decryptedKeyBuffer = await window.crypto.subtle.decrypt(
+        {
+          name: "RSA-OAEP"
+        },
+        importedPrivateKey,
+        encryptedKeyBuffer
+      );
+
+      // 4. Convertir la clave AES descifrada de nuevo a string base64
+      const decryptedKey = new TextDecoder().decode(decryptedKeyBuffer);
+      
+      // 5. Descifrar el contenido del documento
+      const iv = CryptoJS.enc.Base64.parse(document.encryptionIv);
+      const encryptedContent = document.encryptedContent;
+      
+      const decrypted = CryptoJS.AES.decrypt(encryptedContent, CryptoJS.enc.Base64.parse(decryptedKey), {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      });
+
+      // 6. Convertir el contenido descifrado a Uint8Array
+      const decryptedBase64 = decrypted.toString(CryptoJS.enc.Base64);
+      const decryptedArray = Uint8Array.from(atob(decryptedBase64), c => c.charCodeAt(0));
+
+      // 7. Crear y descargar el archivo
+      const blob = new Blob([decryptedArray], { type: document.mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const a = window.document.createElement('a');
+      a.href = url;
+      a.download = document.name;
+      window.document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      window.document.body.removeChild(a);
+
+      return true;
+    } catch (error) {
+      console.error('Error al descifrar el documento:', error);
+      throw new Error('No se pudo descifrar el documento');
+    }
+  },
+
   async uploadDocument(document: UploadDocumentData) {
     const { data } = await ApiService.post('/documents/upload', {
       data: {
@@ -43,7 +117,8 @@ const documentServices = {
           name: document.name,
           mime_type: document.mimeType,
           encrypted_content: document.encryptedContent,
-          encryption_iv: document.encryptionIv
+          encryption_iv: document.encryptionIv,
+          encrypted_key: document.encryptedKey
         }
       }
     });
@@ -70,11 +145,11 @@ export function useDocument() {
   const errorMessage = ref<string | null>(null);
 
   // Cifrar un archivo para su envío
-  const encryptFile = async (file: File): Promise<UploadDocumentData> => {
+  const encryptFile = async (file: File, publicKey: string): Promise<UploadDocumentData> => {
     try {
       // Generar clave aleatoria para AES
       const key = CryptoJS.lib.WordArray.random(32); // 256 bits
-      const iv = CryptoJS.lib.WordArray.random(16); // 128 bits
+     const iv = CryptoJS.enc.Base64.parse('AAECAwQFBgcICQoLDA0ODw==');
 
       // Leer el contenido del archivo como ArrayBuffer
       const fileContent = await readFileAsArrayBuffer(file);
@@ -88,17 +163,22 @@ export function useDocument() {
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       });
-      
-      // Guardamos temporalmente la clave con un identificador único temporal
-      const tempId = Date.now().toString();
-      localStorage.setItem(`temp_document_key_${tempId}`, key.toString(CryptoJS.enc.Hex));
+
+      // Cifrar la clave AES con la clave pública RSA del usuario
+      const encryptedKey = await window.crypto.subtle.encrypt(
+        {
+          name: "RSA-OAEP"
+        },
+        await importPublicKey(publicKey),
+        new TextEncoder().encode(key.toString(CryptoJS.enc.Base64))
+      );
       
       return {
-        tempKeyId: tempId, // Añadimos el ID temporal para poder actualizar la clave después
         encryptedContent: encrypted.toString(),
         encryptionIv: iv.toString(CryptoJS.enc.Base64),
         name: file.name,
-        mimeType: file.type
+        mimeType: file.type,
+        encryptedKey: btoa(String.fromCharCode(...new Uint8Array(encryptedKey)))
       };
     } catch (error) {
       console.error('Error al cifrar archivo:', error);
@@ -124,6 +204,21 @@ export function useDocument() {
     });
   };
 
+  // Función auxiliar para importar clave pública
+  const importPublicKey = async (publicKeyBase64: string): Promise<CryptoKey> => {
+    const publicKeyBuffer = Uint8Array.from(atob(publicKeyBase64), c => c.charCodeAt(0));
+    return await window.crypto.subtle.importKey(
+      "spki",
+      publicKeyBuffer,
+      {
+        name: "RSA-OAEP",
+        hash: "SHA-256",
+      },
+      true,
+      ["encrypt"]
+    );
+  };
+
 
 
   // Query para obtener un documento específico
@@ -146,7 +241,8 @@ export function useDocument() {
             mimeType: doc.mime_type,
             createdAt: doc.created_at,
             encryptedContent: doc.encrypted_content,
-            encryptionIv: doc.encryption_iv
+            encryptionIv: doc.encryption_iv,
+            encryptedKey: doc.encrypted_key
           };
           
           documentsStore.setCurrentDocument(formattedDoc);
@@ -170,26 +266,7 @@ export function useDocument() {
   // Mutación para subir un documento
   const uploadDocumentMutation = useMutation({
     mutationFn: (documentData: UploadDocumentData) => documentServices.uploadDocument(documentData),
-    onSuccess: (response: any, variables) => {
-      console.log('Response de upload:', response);
-      // Obtenemos el ID del documento del response
-      const documentId = response?.data?.id;
-      console.log('DocumentId extraído:', documentId);
-      
-      if (documentId && variables.tempKeyId) {
-        console.log('TempKeyId:', variables.tempKeyId);
-        // Obtenemos la clave temporal
-        const tempKey = localStorage.getItem(`temp_document_key_${variables.tempKeyId}`);
-        console.log('Clave temporal encontrada:', !!tempKey);
-        
-        if (tempKey) {
-          // Guardamos la clave con el ID real del documento
-          localStorage.setItem(`document_key_${documentId}`, tempKey);
-          console.log('Clave guardada con ID:', documentId);
-          // Eliminamos la clave temporal
-          localStorage.removeItem(`temp_document_key_${variables.tempKeyId}`);
-        }
-      }
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ["page[size]"] });
       showAlert('success', 'Documento subido exitosamente');
     },
