@@ -14,7 +14,7 @@ export interface DocumentDetail extends Document {
   encryptionIv: string;
 }
 
-export const useStoreDocuments = defineStore('documents', () => {
+export const useStoreDocument = defineStore('document', () => {
   // Estado
   const documents = ref<{
     own: Document[];
@@ -66,4 +66,4 @@ export const useStoreDocuments = defineStore('documents', () => {
   };
 });
 
-export default useStoreDocuments;
+export default useStoreDocument;

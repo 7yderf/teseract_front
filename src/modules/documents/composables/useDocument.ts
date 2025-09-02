@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { ref } from 'vue';
 import ApiService from '@/core/services/ApiService';
-import useStoreDocuments from '../store/StoreDocuments';
+import useStoreDocument from '../store/StoreDocument';
 import CryptoJS from 'crypto-js';
 import { showAlert } from '@/composables/useAlerts';
 
@@ -63,8 +63,8 @@ const documentServices = {
   }
 };
 
-export function useDocuments() {
-  const documentsStore = useStoreDocuments();
+export function useDocument() {
+  const documentsStore = useStoreDocument();
   const queryClient = useQueryClient();
   const errorMessage = ref<string | null>(null);
 
@@ -169,7 +169,7 @@ export function useDocuments() {
   const uploadDocumentMutation = useMutation({
     mutationFn: (documentData: UploadDocumentData) => documentServices.uploadDocument(documentData),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      queryClient.invalidateQueries({ queryKey: ["page[size]"] });
       showAlert('success', 'Documento subido exitosamente');
     },
     onError: (error: any) => {
@@ -214,4 +214,4 @@ export function useDocuments() {
   };
 }
 
-export default useDocuments;
+export default useDocument;

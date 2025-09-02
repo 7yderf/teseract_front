@@ -122,7 +122,7 @@ import TablePerpage from '@/components/shared/VPerPageSelector.vue';
 import useCompanies from '../modules/documents/composables/useDocs';
 import NoData from "@/components/shared/NoData.vue";
 import BaseModal from '@/components/shared/BaseModal.vue';
-import { useDocuments } from '@/modules/documents/composables/useDocuments';
+import { useDocument } from '@/modules/documents/composables/useDocument';
 import { useRoute, useRouter } from 'vue-router';
 
 
@@ -160,7 +160,7 @@ const documentName = ref('');
 const selectedFile = ref<File | null>(null);
 
 // Composable de documentos
-const { upload, encryptFile, isUploading } = useDocuments();
+const { upload, encryptFile, isUploading } = useDocument();
 
 // Computed properties
 const canUpload = computed(() => {
