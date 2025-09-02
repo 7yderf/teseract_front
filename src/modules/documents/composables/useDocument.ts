@@ -5,61 +5,37 @@ import useStoreDocument from '../store/StoreDocument';
 import CryptoJS from 'crypto-js';
 import { showAlert } from '@/composables/useAlerts';
 
-// Interfaces
-export interface UploadDocumentData {
-  name: string;
-  mimeType: string;
+// Types and Interfaces
+export interface EncryptedData {
   encryptedContent: string;
   encryptionIv: string;
   encryptedKey: string;
 }
 
-interface DocumentResponse {
-  id: number;
+export interface DocumentMetadata {
   name: string;
   mimeType: string;
+}
+
+export interface UploadDocumentData extends EncryptedData, DocumentMetadata {}
+
+export interface DocumentResponse extends EncryptedData, DocumentMetadata {
+  id: number;
   createdAt: string;
   sharedBy?: string;
-  encryptedKey: string;
-  encryptedContent: string;
-  encryptionIv: string;
 }
 
-interface DocumentListResponse {
-  own: DocumentResponse[];
-  shared: DocumentResponse[];
-}
 
-// Respuesta del servicio de descarga
-interface DownloadResponse {
-  data: {
-    type: string;
-    id: string;
-    attributes: {
-      id: number;
-      name: string;
-      mime_type: string;
-      created_at: string;
-      encrypted_content: string;
-      encryption_iv: string;
-      encrypted_key: string;
-    };
-  };
-}
-
-// Servicios API separados
+// API Services
 const documentServices = {
-  
-
+  /**
+   * Obtiene un documento específico por ID
+   * @param id ID del documento
+   */
   async getDocument(id: number): Promise<DocumentResponse> {
     const response = await ApiService.get(`/documents/download/${id}`);
     const doc = response.data.data.attributes;
     
-    // Limpiar y formatear las claves
-    const cleanKey = doc.encrypted_key.replace(/-/g, '+').replace(/_/g, '/');
-    const padding = '='.repeat((4 - cleanKey.length % 4) % 4);
-    const formattedKey = cleanKey + padding;
-
     return {
       id: doc.id,
       name: doc.name,
@@ -67,12 +43,14 @@ const documentServices = {
       createdAt: doc.created_at,
       encryptedContent: doc.encrypted_content,
       encryptionIv: doc.encryption_iv,
-      encryptedKey: formattedKey
+      encryptedKey: formatEncryptionKey(doc.encrypted_key)
     };
   },
 
- 
-
+  /**
+   * Sube un nuevo documento cifrado
+   * @param document Datos del documento a subir
+   */
   async uploadDocument(document: UploadDocumentData) {
     const { data } = await ApiService.post('/documents/upload', {
       data: {
@@ -88,6 +66,12 @@ const documentServices = {
     return data;
   },
 
+  /**
+   * Comparte un documento con otro usuario
+   * @param documentId ID del documento a compartir
+   * @param sharedWithEmail Email del usuario con quien compartir
+   * @param encryptedKey Clave cifrada para el usuario destino
+   */
   async shareDocument(documentId: number, sharedWithEmail: string, encryptedKey: string) {
     const { data } = await ApiService.post('/documents/share', {
       data: {
@@ -100,6 +84,17 @@ const documentServices = {
     });
     return data;
   }
+};
+
+// Helper Functions
+/**
+ * Formatea una clave de cifrado añadiendo el padding necesario
+ * @param key Clave a formatear
+ */
+const formatEncryptionKey = (key: string): string => {
+  const cleanKey = key.replace(/-/g, '+').replace(/_/g, '/');
+  const padding = '='.repeat((4 - cleanKey.length % 4) % 4);
+  return cleanKey + padding;
 };
 
 export function useDocument() {
@@ -239,7 +234,10 @@ export function useDocument() {
     }
   };
 
-  // Función auxiliar para leer un archivo como ArrayBuffer
+  /**
+   * Lee un archivo y lo devuelve como ArrayBuffer
+   * @param file Archivo a leer
+   */
   const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -250,17 +248,18 @@ export function useDocument() {
           reject(new Error('Error al leer el archivo'));
         }
       };
-      reader.onerror = (e) => {
-        reject(e);
-      };
+      reader.onerror = (e) => reject(e);
       reader.readAsArrayBuffer(file);
     });
   };
 
-  // Función auxiliar para importar clave pública
+  /**
+   * Importa una clave pública RSA para su uso con la Web Crypto API
+   * @param publicKeyBase64 Clave pública en formato Base64
+   */
   const importPublicKey = async (publicKeyBase64: string): Promise<CryptoKey> => {
     const publicKeyBuffer = Uint8Array.from(atob(publicKeyBase64), c => c.charCodeAt(0));
-    return await window.crypto.subtle.importKey(
+    return window.crypto.subtle.importKey(
       "spki",
       publicKeyBuffer,
       {
@@ -295,10 +294,10 @@ export function useDocument() {
     retry: 1
   });
 
-  // Mutación para subir un documento
+  // Mutations
   const uploadDocumentMutation = useMutation({
     mutationFn: (documentData: UploadDocumentData) => documentServices.uploadDocument(documentData),
-    onSuccess: (response: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["page[size]"] });
       showAlert('success', 'Documento subido exitosamente');
     },
@@ -309,10 +308,94 @@ export function useDocument() {
     }
   });
 
-  // Mutación para compartir un documento
+  /**
+   * Obtiene la clave pública de un usuario por email
+   */
+  const getUserPublicKey = async (email: string): Promise<string> => {
+    const { data } = await ApiService.get(`/users/public-key?email=${encodeURIComponent(email)}`);
+    const publicKey = data.data.attributes.public_key;
+    if (!publicKey) {
+      throw new Error('No se pudo obtener la llave pública del usuario destino');
+    }
+    return publicKey;
+  };
+
+  /**
+   * Prepara una clave para compartir un documento con otro usuario
+   */
+  const prepareKeyForSharing = async (
+    encryptedKey: string,
+    destinationPublicKey: string
+  ): Promise<string> => {
+    const privateKey = localStorage.getItem('private_key');
+    if (!privateKey) {
+      throw new Error('No se encontró tu llave privada');
+    }
+
+    // Formatear la clave encriptada
+    const cleanedKey = encryptedKey.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - cleanedKey.length % 4) % 4);
+    const base64Key = cleanedKey + padding;
+
+    try {
+      // Importar llave privada
+      const privateKeyBuffer = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0));
+      const importedPrivateKey = await window.crypto.subtle.importKey(
+        "pkcs8",
+        privateKeyBuffer,
+        {
+          name: "RSA-OAEP",
+          hash: "SHA-256",
+        },
+        true,
+        ["decrypt"]
+      );
+      
+      // Descifrar la clave del documento
+      const encryptedKeyBuffer = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
+      const decryptedKeyBuffer = await window.crypto.subtle.decrypt(
+        { name: "RSA-OAEP" },
+        importedPrivateKey,
+        encryptedKeyBuffer
+      );
+
+      // Importar la llave pública del destinatario
+      const importedDestPublicKey = await window.crypto.subtle.importKey(
+        "spki",
+        Uint8Array.from(atob(destinationPublicKey), c => c.charCodeAt(0)),
+        {
+          name: "RSA-OAEP",
+          hash: "SHA-256",
+        },
+        false,
+        ["encrypt"]
+      );
+
+      // Cifrar la clave para el destinatario
+      const reEncryptedKey = await window.crypto.subtle.encrypt(
+        { name: "RSA-OAEP" },
+        importedDestPublicKey,
+        decryptedKeyBuffer
+      );
+
+      return btoa(String.fromCharCode(...new Uint8Array(reEncryptedKey)));
+    } catch (error) {
+      console.error('Error en el proceso de cifrado:', error);
+      throw new Error('Error al procesar la clave del documento');
+    }
+  };
+
   const shareDocumentMutation = useMutation({
-    mutationFn: (data: { documentId: number, sharedWithEmail: string, encryptedKey: string }) => 
-      documentServices.shareDocument(data.documentId, data.sharedWithEmail, data.encryptedKey),
+    mutationFn: async ({ documentId, documentKey, email }: { 
+      documentId: number, 
+      documentKey: string, 
+      email: string 
+    }) => {
+      const destinationPublicKey = await getUserPublicKey(email);
+      const sharedKey = await prepareKeyForSharing(documentKey, destinationPublicKey);
+      
+      return documentServices.shareDocument(documentId, email, sharedKey);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       showAlert('success', 'Documento compartido exitosamente');
@@ -325,21 +408,19 @@ export function useDocument() {
   });
 
   return {
-    // Queries y mutaciones
+    // Document Operations
     getDocument: getDocumentQuery,
     upload: uploadDocumentMutation.mutate,
     share: shareDocumentMutation.mutate,
-    
-    // Utilidades
     encryptFile,
     downloadAndDecryptDocument,
 
-    // Estado
+    // Document State
+    currentDocument: documentsStore.currentDocument,
     isLoading: documentsStore.isLoading,
     error: documentsStore.error,
-    currentDocument: documentsStore.currentDocument,
     
-    // Estado de las operaciones
+    // Operation State
     isUploading: uploadDocumentMutation.isPending,
     isSharing: shareDocumentMutation.isPending
   };
