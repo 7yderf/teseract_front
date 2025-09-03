@@ -24,6 +24,7 @@
     :onDownload="handleDownload"
     :is-sharing="isSharing"
     :is-downloading="isDownloading"
+    :users="users"
   />
 
   <div
@@ -70,6 +71,7 @@ import useCompanies from '../modules/documents/composables/useDocs';
 import NoData from "@/components/shared/NoData.vue";
 import VDocumentUploader from '@/components/shared/VDocumentUploader.vue';
 import { useDocument } from '@/modules/documents/composables/useDocument';
+import useUsers from '@/modules/documents/composables/useUsers';
 import { useRoute } from 'vue-router';
 
 
@@ -105,6 +107,8 @@ const isDownloading = ref(false);
 
 // Composable de documentos
 const { upload, encryptFile, isUploading, share, isSharing, downloadAndDecryptDocument } = useDocument();
+
+const { users } = useUsers();
 
 // Método para manejar la descarga
 const handleDownload = async (documentId: number) => {

@@ -8,15 +8,22 @@
           <label for="email" class="block text-sm font-medium text-gray-700">
             Email del destinatario
           </label>
-          <input
+          <select
             id="email"
             v-model="email"
-            type="email"
             required
             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-            placeholder="correo@ejemplo.com"
             :disabled="isSharing"
-          />
+          >
+            <option value="" disabled selected>Selecciona un usuario</option>
+            <option 
+              v-for="user in users" 
+              :key="user.id" 
+              :value="user.email"
+            >
+              {{ user.email }}
+            </option>
+          </select>
         </div>
 
         <div class="flex justify-end space-x-2">
@@ -52,6 +59,7 @@ interface Props {
   documentName: string;
   isSharing?: boolean;
   onShare: (documentId: number, documentName: string, email: string) => Promise<void>;
+  users: any[];
 }
 
 const props = withDefaults(defineProps<Props>(), {

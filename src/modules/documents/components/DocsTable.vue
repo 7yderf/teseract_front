@@ -73,6 +73,7 @@
       :on-share="onShare"
       :is-sharing="isSharing"
       @close="handleCloseShare"
+      :users="users"
     />
   </div>
 </template>
@@ -103,6 +104,7 @@ interface Props {
   onDownload: (documentId: number) => Promise<void>;
   isSharing: boolean;
   isDownloading: boolean;
+  users: any[];
 }
 
 
