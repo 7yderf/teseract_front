@@ -16,6 +16,14 @@ const childrensAdmin = [
     },
     meta: {},
   },
+  {
+    path: "/shared",
+    name: "shared",
+    components: {
+      default: () => import("../views/SharedView.vue"),
+    },
+    meta: {},
+  },
 ];
 
 const router = createRouter({

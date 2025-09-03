@@ -2,24 +2,24 @@ import { watch } from "vue";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import ApiService from "@/core/services/ApiService";
 import { storeToRefs } from "pinia";
-import { useStoreDocs } from "../store/StoreDocs";
+import { useStoreShared } from "../store/StoreShared";
 
 
-const getDocuments = async ( perPage:any, currentPage:any ): Promise<any> => {
+const getDocumentsShared = async ( perPage:any, currentPage:any ): Promise<any> => {
 
-  const { data } = await ApiService.get(`/documents/own?page=${currentPage}&per_page=${perPage}&order=asc`);
+  const { data } = await ApiService.get(`/documents/shared?page=${currentPage}&per_page=${perPage}&order=asc`);
     return data;
 };
 
-const useDocs = () => {
-  const store = useStoreDocs();
+const usesShared = () => {
+  const store = useStoreShared();
   const queryClient = useQueryClient();
-  const { currentPage, from, lastPage, perPage, to, total, sortQuery, docs, filtesParams } =
+  const { currentPage, from, lastPage, perPage, to, total, sortQuery, shared, filtesParams } =
     storeToRefs(store);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["page[size]", perPage, "page[number]=", currentPage, "sort=", sortQuery, "filters=", filtesParams],
-    queryFn: () => getDocuments(perPage.value, currentPage.value),
+    queryFn: () => getDocumentsShared(perPage.value, currentPage.value),
     retry: 3,
     retryDelay: 1000,
   });
@@ -43,12 +43,12 @@ const useDocs = () => {
       store.setPerPage(+per_page);
       store.setTo(+to);
       store.setTotal(+total);
-      store.setDocs(docs);
+      store.setShared(docs);
     }
   });
 
   // Método para recargar los datos
-  const refetchDocs = async () => {
+  const refetchShared = async () => {
     await queryClient.invalidateQueries({ queryKey: ["page[size]"] });
   };
 
@@ -64,7 +64,7 @@ const useDocs = () => {
     perPage,
     to,
     total,
-    docs,
+    shared,
     filtesParams,
    
   
@@ -72,7 +72,7 @@ const useDocs = () => {
     getPage: store.setCurrentPage,
     setPerPage: store.setPerPage,
     // recargar la data cuando se crea un nuevo usuario
-    refetchDocs,
+    refetchShared,
     //filters
     
     // Permissions
@@ -80,4 +80,4 @@ const useDocs = () => {
   };
 };
 
-export default useDocs;
+export default usesShared;

@@ -73,9 +73,9 @@
         </span>
       </div>
       </div>
-      <label class="check__label">
+      <p class="text-sm text-gray-600 mt-2">
         Al menos una mayúscula, una minúscula, un número, un símbolo y {{ characters }} caracteres.
-      </label>
+      </p>
     </div>
   </div>
 </template>
@@ -181,8 +181,5 @@ defineExpose({
     @include text(2rem, 600, 2.8rem, center);
   }
   
-  &__label {
-    @include text(1.2rem, 500, 1.6rem, left);
-  }
 }
 </style>

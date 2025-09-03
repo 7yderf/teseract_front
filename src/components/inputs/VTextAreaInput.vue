@@ -30,7 +30,7 @@
           height="1.4rem" />
       </span>
 
-      <Field v-slot="{ field, meta, value }" :name="name">
+      <Field v-slot="{ field, meta }" :name="name">
         <textarea v-bind="field"
           :id="`${label}-${formName}`"
           :data-height="height"
@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed, onMounted } from "vue";
+import { defineProps, ref } from "vue";
 import { Field, ErrorMessage } from "vee-validate";
 import { Icon } from '@iconify/vue';
 import FieldLabel from './FieldLabel.vue';

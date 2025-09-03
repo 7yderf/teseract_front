@@ -1,6 +1,3 @@
-import { format, parse } from "date-fns";
-import { da, es } from "date-fns/locale";
-
 // Crear un mapa de nombres cortos para los meses en español
 const mesesCortos = [
   "ene",
@@ -22,8 +19,7 @@ export interface FormatCurrencyOptions {
 }
 
 export const formatCurrency = (
-  value: string,
-  style: FormatCurrencyOptions["style"] = undefined
+  value: string
 ): string => {
   const asNumber = value ? value.replace(/[^0-9-]+/g, "") : "0";
   let lastTwo: string, rest: string;
@@ -93,14 +89,6 @@ export const formatDate = (
 // end = 2024-11-14 14:22:00 transformar a 14 nov, 2024 14:22
 interface DateWithTimeInput {
   date: string | null | undefined;
-}
-
-interface DateParts {
-  day: string;
-  month: string;
-  year: string;
-  hour: string;
-  minute: string;
 }
 
 const dateWhithTime = (date: DateWithTimeInput["date"]): string | null => {

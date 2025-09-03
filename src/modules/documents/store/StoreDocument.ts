@@ -7,11 +7,19 @@ export interface Document {
   mimeType: string;
   createdAt: string;
   sharedBy?: string;
+  encryptedKey?: string;  // Clave cifrada del documento
 }
 
 export interface DocumentDetail extends Document {
   encryptedContent: string;
   encryptionIv: string;
+  encryptedKey: string;   // Siempre requerida para documentos detallados
+}
+
+export interface DocumentShare {
+  documentId: number;
+  sharedWithEmail: string;
+  encryptedKey: string;   // Clave recifrada para el destinatario
 }
 
 export const useStoreDocument = defineStore('document', () => {
@@ -25,8 +33,10 @@ export const useStoreDocument = defineStore('document', () => {
   });
   
   const currentDocument = ref<DocumentDetail | null>(null);
+  const documentKey = ref<CryptoKey | null>(null);     // Clave temporal para el documento actual
   const isLoading = ref(false);
   const error = ref<string | null>(null);
+  const sharingProgress = ref<number>(0);              // Progreso durante la compartición
 
   // Acciones
   const setDocuments = (data: { own: Document[], shared: Document[] }) => {
@@ -54,8 +64,10 @@ export const useStoreDocument = defineStore('document', () => {
     // Estado
     documents,
     currentDocument,
+    documentKey,
     isLoading,
     error,
+    sharingProgress,
     
     // Acciones
     setDocuments,

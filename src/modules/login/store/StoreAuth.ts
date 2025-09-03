@@ -22,7 +22,8 @@ interface UserResponse {
       email: string; 
       id: number; 
       token: string; 
-      permissions: string 
+      permissions: string;
+      public_key: string;
     } 
   };
 }
@@ -48,6 +49,7 @@ export const useAuthStore = defineStore("auth", () => {
   const formValuesAuth = ref({
     email: '',
     password: '',
+    private: ''
   });
 
   const sesion = reactive<UserData>({
@@ -58,6 +60,7 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   function setUser(user: UserResponse) {
+    console.log('🚀 ~ setUser ~ user:', user)
     sesion.isAuth = true;
     sesion.user = user.data.attributes.email;
     sesion.role = ["user"];
@@ -65,6 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Guardar datos en localStorage y JWT
     localStorage[LOCAL_STORAGE_USER_KEY] = JSON.stringify(sesion);
+    localStorage.public_key = user.data.attributes.public_key;
     JwtService.saveToken(user.data.attributes.token);
     JwtService.savePermissions(user.data.attributes.permissions);
   }
@@ -77,7 +81,9 @@ export const useAuthStore = defineStore("auth", () => {
     JwtService.destroyToken();
     JwtService.destroyPermissions();
     localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-    
+    JwtService.destroyPrivateKey();
+    localStorage.clear();
+
     // Reiniciar estado
     sesion.isAuth = false;
     sesion.user = null;

@@ -75,7 +75,7 @@
       >
         <button
           type="submit"
-          class="form__submit-btn"
+          class=" w-full text-white font-semibold rounded-md bg-sky-500/75 px-4 py-2 hover:bg-sky-500 focus:outline-none"
         >
           Guardar
         </button>
@@ -87,18 +87,18 @@
 <script setup lang="ts">
 import { onMounted, ref, markRaw, watch, defineEmits } from 'vue'
 import { Form } from 'vee-validate'
-import { FormVTextInput, PasswordStrengthValidator } from '@/components/others';
+import { FormVTextInput, PasswordStrengthValidator } from '@/components/inputs';
 import Loader from '@/components/shared/Loader.vue';
 import { schema as validationSchema } from '@/modules/login/schemas/registerValidation';
 import useAuth from '@/modules/login/composables/useAuth';
 
-const props = defineProps<{
+defineProps<{
   redirect?: string
 }>()
 
 const { register, isUpdating } = useAuth()
 
-const emits = defineEmits<{
+defineEmits<{
   success: []
 }>()
 
@@ -112,7 +112,7 @@ const typeActivePassword = ref({
   confirm_password: true,
 })
 
-const showPass = (type: string, name: keyof typeof typeActivePassword.value) => {
+const showPass = (name: keyof typeof typeActivePassword.value) => {
   typeActivePassword.value = {
     ...typeActivePassword.value,
     [name]: !typeActivePassword.value[name]

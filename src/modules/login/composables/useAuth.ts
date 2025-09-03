@@ -1,7 +1,7 @@
-import { computed, ref, watch } from "vue";
+import { ref, computed } from "vue";
 import ApiService from "@/core/services/ApiService";
 import { showAlert } from "@/composables/useAlerts.ts";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useAuthStore } from "@/modules/login/store/StoreAuth";
 import { storeToRefs } from "pinia";
 import { useRouter } from 'vue-router'
@@ -25,17 +25,17 @@ const register = async (body: any) => {
 
 const useAuth = () => {
   const authStore = useAuthStore();
-  const router = useRouter()
   const { sesion, formValuesAuth } = storeToRefs(authStore);
-
+  
   const queryClient = useQueryClient();
+  const router = useRouter()
 
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
       authStore.setUser(data);
       showAlert("success", data.meta.message);
-      window.location.href = "/";
+      router.push("/documents");
     },
     onError: (error) => {
       const err = error as any;
@@ -58,8 +58,8 @@ const useAuth = () => {
 
   const registerMutation = useMutation({
     mutationFn: register,
-    onSuccess: (data) => {
-      showAlert("success", data.meta.message);
+    onSuccess: () => {
+      showAlert("success", "Gracias por registrarte \n porfavor verifica tu correo y no compartas tu clave privada.");
       router.push("/");
     },
     onError: (error) => {
@@ -75,6 +75,7 @@ const useAuth = () => {
     register: registerMutation.mutate,
     logout: logoutMutation.mutate,
     isUpdating: computed( () => loginMutation.isPending.value || registerMutation.isPending.value || logoutMutation.isPending.value),
+    isSuccess: computed(() => loginMutation.isSuccess.value || registerMutation.isSuccess.value || logoutMutation.isSuccess.value),
     errors,
   };
 };

@@ -97,7 +97,6 @@ const props = defineProps<Props>();
 const currentPage = toRef(props, 'currentPage');
 const lastPage = toRef(props, 'lastPage');
 
-const maxVisiblePages = 5; // Máximo número de páginas visibles
 const visiblePageNumbers = computed(() => {
   const pages: number[] = [];
 

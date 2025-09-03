@@ -1,9 +1,9 @@
 <template>
+<Loader v-if="load" />
 
-
-  <div class="w-full max-w-[1200px] mx-auto">
+  <div class="w-full max-w-[1200px] mx-auto mt-15">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">Documentos Seguros</h2>
+        <h2 class="text-[3.2rem] font-bold">Documentos Seguros</h2>
         <button
           @click="showUploadModal = true"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
@@ -21,7 +21,10 @@
     :getPage="getPage"
     :load-with-sort="refetchDocs"
     :onShare="handleShare"
+    :onDownload="handleDownload"
     :is-sharing="isSharing"
+    :is-downloading="isDownloading"
+    :users="users"
   />
 
   <div
@@ -60,19 +63,21 @@
 </template>
 
 <script  setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import DocsTable from "../modules/documents/components/DocsTable.vue";
 import TablePaginator from '@/components/shared/VPaginator.vue';
 import TablePerpage from '@/components/shared/VPerPageSelector.vue';
-import useCompanies from '../modules/documents/composables/useDocs';
+import useDocs from '../modules/documents/composables/useDocs';
 import NoData from "@/components/shared/NoData.vue";
 import VDocumentUploader from '@/components/shared/VDocumentUploader.vue';
+import Loader from '@/components/shared/Loader.vue';
 import { useDocument } from '@/modules/documents/composables/useDocument';
+import useUsers from '@/modules/documents/composables/useUsers';
 import { useRoute } from 'vue-router';
 
 
 const route = useRoute();
-
+const load = ref(false)
 const {
   // #region::Pagination
   currentPage,
@@ -86,54 +91,59 @@ const {
   // #region::Documents requests state
   isLoading,
   isError,
-  error,
   // #endregion::Documents requests state
 
   // #region::Documents data
   getPage,
   setPerPage,
   docs,
-  refetchDocs
-} = useCompanies();
-  console.log('🚀 ~ docs:', docs.value)
+  refetchDocs,
+} = useDocs();
 
 
 // Estado local
 const showUploadModal = ref(false);
+const isDownloading = ref(false);
 
 // Composable de documentos
-const { upload, encryptFile, isUploading, share, isSharing } = useDocument();
+const { upload, encryptFile, isUploading, share, isSharing, downloadAndDecryptDocument } = useDocument();
+
+const { users } = useUsers();
+
+// Método para manejar la descarga
+const handleDownload = async (documentId: number) => {
+
+  try {
+    isDownloading.value = true;
+    
+    // Usar el nuevo método que hace la petición al servicio
+    await downloadAndDecryptDocument(documentId);
+    showAlert('success', 'Documento descargado exitosamente');
+  } catch (error) {
+    console.error('Error al descargar:', error);
+    showAlert('error', error instanceof Error ? error.message : 'Error al descargar el documento');
+  } finally {
+    isDownloading.value = false;
+  }
+};
 
 // Métodos
 import { showAlert } from '@/composables/useAlerts';
 
-const handleShare = async (documentId: number, documentName: string, email: string) => {
+const handleShare = async (documentId: number, _documentName: string, email: string) => {
   try {
-    console.log('Intentando compartir documento:', { documentId, documentName, email });
-    // Obtener la clave de cifrado del documento usando el ID
-    const documentKey = localStorage.getItem(`document_key_${documentId}`);
-    console.log('Buscando clave con ID:', `document_key_${documentId}`);
-    console.log('Clave encontrada:', !!documentKey);
-    console.log('Valor de la clave:', documentKey);
-    
-    // Debug: Listar todas las claves en localStorage que empiezan con document_key_
-    const keys = Object.keys(localStorage).filter(key => key.startsWith('document_key_'));
-    console.log('Todas las claves de documentos en localStorage:', keys);
-    
-    if (!documentKey) {
+    const doc = docs.value.find(d => d.id === documentId);
+    if (!doc?.encrypted_key) {
       throw new Error('No se encontró la clave del documento');
     }
 
-    // Intentar compartir el documento
     await share({
       documentId,
-      sharedWithEmail: email,
-      encryptedKey: documentKey
+      documentKey: doc.encrypted_key,
+      email
     });
-
-    showAlert('success', 'Documento compartido exitosamente');
   } catch (error: any) {
-    console.error('Error completo:', error);
+    console.error('Error al compartir:', error);
     const errorMessage = error?.message || 'Error al compartir el documento';
     showAlert('error', errorMessage);
     throw error;
@@ -142,8 +152,14 @@ const handleShare = async (documentId: number, documentName: string, email: stri
 
 const handleDocumentUpload = async (file: File, name: string) => {
   try {
-    // Cifrar el archivo
-    const encryptedData = await encryptFile(file);
+    // Obtener la clave pública del usuario del localStorage
+    const publicKey = localStorage.getItem('public_key');
+    if (!publicKey) {
+      throw new Error('No se encontró la clave pública del usuario');
+    }
+
+    // Cifrar el archivo con la clave pública
+    const encryptedData = await encryptFile(file, publicKey);
     
     // Personalizar el nombre si es diferente al nombre del archivo
     if (name !== file.name) {
@@ -160,6 +176,14 @@ const handleDocumentUpload = async (file: File, name: string) => {
     console.error('Error al subir el documento:', error);
   }
 };
+
+watch(
+  () => isUploading.value,
+  (newValue) => {
+    console.log('🚀 ~ newValue:', newValue)
+    load.value = newValue;
+  }
+);
 
 // onMounted(() => {});
 // onUnmounted(() => {});
