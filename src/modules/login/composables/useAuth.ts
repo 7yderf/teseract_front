@@ -25,17 +25,17 @@ const register = async (body: any) => {
 
 const useAuth = () => {
   const authStore = useAuthStore();
-  const router = useRouter()
   const { sesion, formValuesAuth } = storeToRefs(authStore);
-
+  
   const queryClient = useQueryClient();
+  const router = useRouter()
 
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
       authStore.setUser(data);
       showAlert("success", data.meta.message);
-      window.location.href = "/";
+      router.push("/documents");
     },
     onError: (error) => {
       const err = error as any;
@@ -75,6 +75,7 @@ const useAuth = () => {
     register: registerMutation.mutate,
     logout: logoutMutation.mutate,
     isUpdating: computed( () => loginMutation.isPending.value || registerMutation.isPending.value || logoutMutation.isPending.value),
+    isSuccess: computed(() => loginMutation.isSuccess.value || registerMutation.isSuccess.value || logoutMutation.isSuccess.value),
     errors,
   };
 };

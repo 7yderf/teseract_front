@@ -9,5 +9,6 @@ export const schema = () => {
       .required('El dato es obligatorio')
       .email('Porfavor ingrese un formato valido'),
     password: yup.string().required('El dato es obligatorio'),
+    private: yup.string().required('El dato es obligatorio'),
   });
 }

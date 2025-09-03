@@ -49,6 +49,7 @@ export const useAuthStore = defineStore("auth", () => {
   const formValuesAuth = ref({
     email: '',
     password: '',
+    private: ''
   });
 
   const sesion = reactive<UserData>({
@@ -79,7 +80,9 @@ export const useAuthStore = defineStore("auth", () => {
     JwtService.destroyToken();
     JwtService.destroyPermissions();
     localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-    
+    JwtService.destroyPrivateKey();
+    localStorage.clear();
+
     // Reiniciar estado
     sesion.isAuth = false;
     sesion.user = null;

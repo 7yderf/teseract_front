@@ -31,6 +31,19 @@
           :label-animation="true"
         />
       </div>
+      <div class="flex flex-col gap-4 w-full">
+        <FormVTextInput
+          :type="typeActivePassword['private'] ? 'password' : 'text'"
+          name="private"
+          label="Clave Privada"
+          height="thin"
+          :icon="'mdi:lock'"
+          :is-font-black="true"
+          :password="true"
+          @showPassword="showPass"
+          :label-animation="true"
+        />
+      </div>
       <slot name="register" />
       <div class="w-full pt-8">
         <button type="submit" class="btn-primary">
@@ -46,23 +59,29 @@ import { onMounted, ref, markRaw, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm, Form } from 'vee-validate'
 import Loader from '@/components/shared/Loader.vue';
-import { FormVTextInput } from '@/components/others';
+import { FormVTextInput } from '@/components/inputs';
 import  useAuth  from '@/modules/login/composables/useAuth';
 import { schema as validationSchema } from '@/modules/login/schemas/validationSchemas';
+import JwtService from '@/core/services/JwtService';
 
 const {
   login,
   formValuesAuth,
-  isUpdating
+  isUpdating,
+  isSuccess
 } = useAuth()
 
+const privateK = ref('')
 const schema = ref(markRaw(validationSchema()));
 const router = useRouter()
 const load = ref(false)
 
-const typeActivePassword = ref<{ password: boolean }>({ password: true });
+const typeActivePassword = ref({
+  password: true,
+  private: true
+})
 
-const showPass = (type: "", name: 'password') => {
+const showPass = (type: "", name: 'password' | 'private') => {
   typeActivePassword.value = {
     ...typeActivePassword.value,
     [name]: !typeActivePassword.value[name]
@@ -70,11 +89,14 @@ const showPass = (type: "", name: 'password') => {
 };
 
 const onSubmit = async (values: any, { resetForm }: any) => {
-
+  const { private: privateKey, ...rest } = values;
+  privateK.value = privateKey;
   login({
     data: {
       type: "auth",
-      attributes: values,
+      attributes: {
+        ...rest,
+      },
     }
   })
 }
@@ -83,6 +105,15 @@ watch(
   () => isUpdating.value,
   (newValue) => {
     load.value = newValue;
+  }
+);
+watch(
+  () => isSuccess.value,
+  (newValue) => {
+    if (newValue) {
+      console.log('🚀 ~ privateK.value:', privateK.value)
+      JwtService.encryptPrivateKey(privateK.value);
+    }
   }
 );
 

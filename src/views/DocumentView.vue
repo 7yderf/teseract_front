@@ -71,7 +71,6 @@ import NoData from "@/components/shared/NoData.vue";
 import VDocumentUploader from '@/components/shared/VDocumentUploader.vue';
 import { useDocument } from '@/modules/documents/composables/useDocument';
 import { useRoute } from 'vue-router';
-import ApiService from '@/core/services/ApiService';
 
 
 const route = useRoute();

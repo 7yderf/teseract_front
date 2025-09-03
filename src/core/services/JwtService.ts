@@ -1,7 +1,10 @@
 import CryptoJS from "crypto-js";
+//import process from "process";
+
 
 const ID_TOKEN_KEY = "id_token";
 const ID_PERMISSIONS_KEY = "permissions";
+const PRIVATE_KEY_STORAGE = "private_key";
 
 /**
  * @description get token from localStorage
@@ -65,9 +68,9 @@ const decipherPermissions = () => {
   const permissionsPayload = window.localStorage.getItem(ID_PERMISSIONS_KEY);
   let Utf8 = CryptoJS.enc.Utf8;
 
-  // Asegúrate de reemplazar estas variables con valores reales en tu entorno JS
-  const $secret_key = process.env.VITE_SERVER_APP_TOKEN ?? "";
-  const $secret_iv = process.env.VITE_SERVER_APP_IV ?? "";
+  // Obtener variables de entorno usando import.meta.env
+  const $secret_key = import.meta.env.VITE_SERVER_APP_TOKEN ?? "";
+  const $secret_iv = import.meta.env.VITE_SERVER_APP_IV ?? "";
 
   if (!$secret_key || !$secret_iv) {
     throw new Error(
@@ -98,6 +101,99 @@ const decipherPermissions = () => {
   return decrypt;
 };
 
+/**
+ * @description Encrypts the private key using environment variables as encryption keys
+ * @param privateKey The private key to encrypt
+ * @returns encrypted private key string
+ */
+export const encryptPrivateKey = (privateKey: string): string => {
+  console.log('🚀 ~ encryptPrivateKey ~ privateKey:', privateKey)
+  let Utf8 = CryptoJS.enc.Utf8;
+  
+  const $secret_key = import.meta.env.VITE_SERVER_APP_TOKEN ?? "";
+  const $secret_iv = import.meta.env.VITE_SERVER_APP_IV ?? "";
+
+  if (!$secret_key || !$secret_iv) {
+    throw new Error("Secret key or IV is not defined in environment variables.");
+  }
+
+  if (!privateKey) {
+    throw new Error("Private key is required for encryption.");
+  }
+
+  // Generate encryption key and IV using the same method as permissions
+  const key = CryptoJS.SHA256($secret_key)
+    .toString(CryptoJS.enc.Hex)
+    .substring(0, 32);
+
+  const iv = CryptoJS.SHA256($secret_iv)
+    .toString(CryptoJS.enc.Hex)
+    .substring(0, 16);
+
+  // Encrypt the private key
+  const encrypted = CryptoJS.AES.encrypt(privateKey, Utf8.parse(key), {
+    iv: Utf8.parse(iv),
+  });
+
+  // Store the encrypted result
+  window.localStorage.setItem(PRIVATE_KEY_STORAGE, encrypted.toString());
+  
+  return encrypted.toString();
+};
+
+/**
+ * @description Decrypts the stored private key using environment variables
+ * @returns decrypted private key string
+ * @throws Error if private key is not found or if decryption fails
+ */
+export const decryptPrivateKey = (): string => {
+  const encryptedKey = window.localStorage.getItem(PRIVATE_KEY_STORAGE);
+  let Utf8 = CryptoJS.enc.Utf8;
+
+  const $secret_key = import.meta.env.VITE_SERVER_APP_TOKEN ?? "";
+  const $secret_iv = import.meta.env.VITE_SERVER_APP_IV ?? "";
+
+  if (!$secret_key || !$secret_iv) {
+    throw new Error("Secret key or IV is not defined in environment variables.");
+  }
+
+  if (!encryptedKey) {
+    throw new Error("No encrypted private key found in storage.");
+  }
+
+  const key = CryptoJS.SHA256($secret_key)
+    .toString(CryptoJS.enc.Hex)
+    .substring(0, 32);
+
+  const iv = CryptoJS.SHA256($secret_iv)
+    .toString(CryptoJS.enc.Hex)
+    .substring(0, 16);
+
+  try {
+    const decrypted = CryptoJS.AES.decrypt(encryptedKey, Utf8.parse(key), {
+      iv: Utf8.parse(iv),
+    });
+
+    const privateKey = decrypted.toString(Utf8);
+
+    if (!privateKey) {
+      throw new Error("Failed to decrypt private key.");
+    }
+
+    return privateKey;
+  } catch (error) {
+    console.error("Error decrypting private key:", error);
+    throw new Error("Failed to decrypt private key. Please try logging in again.");
+  }
+};
+
+/**
+ * @description Removes the encrypted private key from localStorage
+ */
+export const destroyPrivateKey = () => {
+  window.localStorage.removeItem(PRIVATE_KEY_STORAGE);
+};
+
 export default {
   getToken,
   saveUser,
@@ -107,4 +203,7 @@ export default {
   savePermissions,
   destroyPermissions,
   hasPermissionTo,
+  encryptPrivateKey,
+  decryptPrivateKey,
+  destroyPrivateKey,
 };

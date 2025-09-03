@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { onMounted, ref, markRaw, watch, defineEmits } from 'vue'
 import { Form } from 'vee-validate'
-import { FormVTextInput, PasswordStrengthValidator } from '@/components/others';
+import { FormVTextInput, PasswordStrengthValidator } from '@/components/inputs';
 import Loader from '@/components/shared/Loader.vue';
 import { schema as validationSchema } from '@/modules/login/schemas/registerValidation';
 import useAuth from '@/modules/login/composables/useAuth';

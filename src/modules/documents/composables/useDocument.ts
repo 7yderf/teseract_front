@@ -4,6 +4,7 @@ import ApiService from '@/core/services/ApiService';
 import useStoreDocument from '../store/StoreDocument';
 import CryptoJS from 'crypto-js';
 import { showAlert } from '@/composables/useAlerts';
+import JwtService from '@/core/services/JwtService';
 
 // Types and Interfaces
 export interface EncryptedData {
@@ -108,7 +109,7 @@ export function useDocument() {
       const docResponse = await documentServices.getDocument(documentId);
       
       // 2. Obtener la clave privada del almacenamiento local
-      const privateKeyStr = localStorage.getItem('private_key');
+      const privateKeyStr = JwtService.decryptPrivateKey();
       if (!privateKeyStr) {
         throw new Error('No se encontró la clave privada');
       }
@@ -327,7 +328,7 @@ export function useDocument() {
     encryptedKey: string,
     destinationPublicKey: string
   ): Promise<string> => {
-    const privateKey = localStorage.getItem('private_key');
+    const privateKey = JwtService.decryptPrivateKey();
     if (!privateKey) {
       throw new Error('No se encontró tu llave privada');
     }

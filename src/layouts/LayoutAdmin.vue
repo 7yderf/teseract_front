@@ -7,6 +7,12 @@ const { logout, sesion } = useAuth();
 <template>
  <main class="admin">
   <header class="admin__header">
+    <nav>
+      <ul>
+        <li><router-link  activeClass="bg-cyan-500" to="/documents">Documentos</router-link></li>
+        <li><router-link  activeClass="bg-cyan-500" to="/shared">Compartidos</router-link></li>
+      </ul>
+    </nav>
     <div class="admin__logout">
       <p>{{ sesion.user }}</p>
       <button type="button" @click="logout">Logout</button>
