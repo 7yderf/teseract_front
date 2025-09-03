@@ -56,8 +56,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, markRaw, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useForm, Form } from 'vee-validate'
+import { Form } from 'vee-validate'
 import Loader from '@/components/shared/Loader.vue';
 import { FormVTextInput } from '@/components/inputs';
 import  useAuth  from '@/modules/login/composables/useAuth';
@@ -73,7 +72,6 @@ const {
 
 const privateK = ref('')
 const schema = ref(markRaw(validationSchema()));
-const router = useRouter()
 const load = ref(false)
 
 const typeActivePassword = ref({
@@ -81,14 +79,14 @@ const typeActivePassword = ref({
   private: true
 })
 
-const showPass = (type: "", name: 'password' | 'private') => {
+const showPass = (name: 'password' | 'private') => {
   typeActivePassword.value = {
     ...typeActivePassword.value,
     [name]: !typeActivePassword.value[name]
   };
 };
 
-const onSubmit = async (values: any, { resetForm }: any) => {
+const onSubmit = async (values: any) => {
   const { private: privateKey, ...rest } = values;
   privateK.value = privateKey;
   login({
@@ -111,7 +109,6 @@ watch(
   () => isSuccess.value,
   (newValue) => {
     if (newValue) {
-      console.log('🚀 ~ privateK.value:', privateK.value)
       JwtService.encryptPrivateKey(privateK.value);
     }
   }

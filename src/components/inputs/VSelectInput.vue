@@ -233,7 +233,6 @@ const initializeSearchDataOnClick = () => {
  * Limpia el valor del campo de búsqueda.
  */
 const resetSearchInput = () => {
-  console.log('clearInput');
   searchGlobal.value = '';
 }
 

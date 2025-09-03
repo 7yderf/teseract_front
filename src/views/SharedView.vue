@@ -73,7 +73,6 @@ const {
   // #region::Documents requests state
   isLoading,
   isError,
-  error,
   // #endregion::Documents requests state
 
   // #region::Documents data
@@ -85,7 +84,6 @@ const {
 
 
 // Estado local
-const showUploadModal = ref(false);
 const isDownloading = ref(false);
 
 // Composable de documentos

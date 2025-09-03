@@ -92,13 +92,13 @@ import Loader from '@/components/shared/Loader.vue';
 import { schema as validationSchema } from '@/modules/login/schemas/registerValidation';
 import useAuth from '@/modules/login/composables/useAuth';
 
-const props = defineProps<{
+defineProps<{
   redirect?: string
 }>()
 
 const { register, isUpdating } = useAuth()
 
-const emits = defineEmits<{
+defineEmits<{
   success: []
 }>()
 
@@ -112,7 +112,7 @@ const typeActivePassword = ref({
   confirm_password: true,
 })
 
-const showPass = (type: string, name: keyof typeof typeActivePassword.value) => {
+const showPass = (name: keyof typeof typeActivePassword.value) => {
   typeActivePassword.value = {
     ...typeActivePassword.value,
     [name]: !typeActivePassword.value[name]

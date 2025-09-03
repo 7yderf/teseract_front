@@ -76,20 +76,6 @@ const close = () => {
 
 const handleShare = async () => {
   try {
-    console.log('ShareDocumentModal - Intentando compartir:', {
-      documentId: props.documentId,
-      documentName: props.documentName,
-      email: email.value
-    });
-    
-    // Verificar las claves en localStorage
-    const keys = Object.keys(localStorage);
-    console.log('Claves en localStorage:', keys.filter(k => k.includes('document_key_')));
-    
-    // Verificar específicamente la clave que buscamos
-    const keyExists = localStorage.getItem(`document_key_${props.documentId}`);
-    console.log(`Clave document_key_${props.documentId} existe:`, !!keyExists);
-    
     await props.onShare(props.documentId, props.documentName, email.value);
     close();
   } catch (error) {

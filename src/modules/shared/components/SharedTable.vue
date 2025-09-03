@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+
 import { Icon } from '@iconify/vue';
 import TableThead from "./TableThead.vue";
 

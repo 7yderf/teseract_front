@@ -18,7 +18,6 @@ const setItemsPerPage = (event: Event) => {
   const value = target.value;
   props.getPage(1);
   props.setPerPage(+value);
-  console.log(value);
 };
 </script>
 <template>

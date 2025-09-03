@@ -13,7 +13,7 @@ export const schema = ({ characters, regex }: { characters: number; regex: RegEx
         .min(characters, "Logitud minima de 8 caracteres")
         .matches(regex, "Debe respetar el formato de contraseña")
         .required("La contraseña es necesaria"),
-    confirm_password: yup.lazy((value) => {
+    confirm_password: yup.lazy(() => {
         return yup.string()
           .when("password", (password, schema) => {
             return schema.test({

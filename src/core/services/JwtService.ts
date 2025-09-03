@@ -107,7 +107,6 @@ const decipherPermissions = () => {
  * @returns encrypted private key string
  */
 export const encryptPrivateKey = (privateKey: string): string => {
-  console.log('🚀 ~ encryptPrivateKey ~ privateKey:', privateKey)
   let Utf8 = CryptoJS.enc.Utf8;
   
   const $secret_key = import.meta.env.VITE_SERVER_APP_TOKEN ?? "";

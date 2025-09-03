@@ -1,4 +1,4 @@
-import { computed, watch } from "vue";
+import { watch } from "vue";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import ApiService from "@/core/services/ApiService";
 import { storeToRefs } from "pinia";
@@ -32,9 +32,8 @@ const usesShared = () => {
 
   watch(data, (docsListResponse) => {
     if (docsListResponse) {
-      const { meta, data } = docsListResponse as any;
+      const { data } = docsListResponse as any;
       const { data:docs, pagination } = data.attributes;
-      console.log('🚀 ~ useDocs ~ docs:', docs)
 
       const { current_page, from, last_page, per_page, to, total } = pagination;
 

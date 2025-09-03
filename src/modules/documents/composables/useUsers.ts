@@ -1,5 +1,5 @@
-import { computed, watch } from "vue";
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import { watch } from "vue";
+import { useQuery } from "@tanstack/vue-query";
 import ApiService from "@/core/services/ApiService";
 import { storeToRefs } from "pinia";
 import { useUsersStore  } from "../store/StoreUsers";
@@ -25,9 +25,8 @@ const useUsers = () => {
 
   watch(data, (newData) => {
     if (newData) {
-      const { meta, data } = newData;
+      const { data } = newData;
       const { users } = data.attributes
-      console.log('🚀 ~ useUsers ~ newData:', users)
       store.setUsers(users);
     }
   });

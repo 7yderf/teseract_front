@@ -90,7 +90,6 @@ const {
   // #region::Documents requests state
   isLoading,
   isError,
-  error,
   // #endregion::Documents requests state
 
   // #region::Documents data
@@ -130,7 +129,7 @@ const handleDownload = async (documentId: number) => {
 // Métodos
 import { showAlert } from '@/composables/useAlerts';
 
-const handleShare = async (documentId: number, documentName: string, email: string) => {
+const handleShare = async (documentId: number, _documentName: string, email: string) => {
   try {
     const doc = docs.value.find(d => d.id === documentId);
     if (!doc?.encrypted_key) {

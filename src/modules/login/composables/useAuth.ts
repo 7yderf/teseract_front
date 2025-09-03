@@ -1,7 +1,7 @@
-import { computed, ref, watch } from "vue";
+import { ref, computed } from "vue";
 import ApiService from "@/core/services/ApiService";
 import { showAlert } from "@/composables/useAlerts.ts";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useAuthStore } from "@/modules/login/store/StoreAuth";
 import { storeToRefs } from "pinia";
 import { useRouter } from 'vue-router'
@@ -58,7 +58,7 @@ const useAuth = () => {
 
   const registerMutation = useMutation({
     mutationFn: register,
-    onSuccess: (data) => {
+    onSuccess: () => {
       showAlert("success", "Gracias por registrarte \n porfavor verifica tu correo y no compartas tu clave privada.");
       router.push("/");
     },

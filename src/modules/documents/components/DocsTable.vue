@@ -41,7 +41,7 @@
                 icon="bi:share"
                 class="h-5 w-5 cursor-pointer text-gray-600 hover:text-primary-600"
                 @click="() => {
-                  console.log('Documento a compartir:', doc);
+              
                   handleShare(Number(doc.attributes?.id || doc.id), doc.attributes?.name || doc.name)
                 }"
               />

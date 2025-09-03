@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed, onMounted } from "vue";
+import { defineProps, defineEmits, ref } from "vue";
 import { Field, ErrorMessage } from "vee-validate";
 import { Icon } from '@iconify/vue';
 import FieldLabel from './FieldLabel.vue';
