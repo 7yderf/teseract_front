@@ -60,6 +60,7 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   function setUser(user: UserResponse) {
+    console.log('🚀 ~ setUser ~ user:', user)
     sesion.isAuth = true;
     sesion.user = user.data.attributes.email;
     sesion.role = ["user"];

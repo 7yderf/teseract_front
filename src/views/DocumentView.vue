@@ -1,5 +1,5 @@
 <template>
-
+<Loader v-if="load" />
 
   <div class="w-full max-w-[1200px] mx-auto mt-15">
     <div class="flex justify-between items-center mb-6">
@@ -63,20 +63,21 @@
 </template>
 
 <script  setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import DocsTable from "../modules/documents/components/DocsTable.vue";
 import TablePaginator from '@/components/shared/VPaginator.vue';
 import TablePerpage from '@/components/shared/VPerPageSelector.vue';
-import useCompanies from '../modules/documents/composables/useDocs';
+import useDocs from '../modules/documents/composables/useDocs';
 import NoData from "@/components/shared/NoData.vue";
 import VDocumentUploader from '@/components/shared/VDocumentUploader.vue';
+import Loader from '@/components/shared/Loader.vue';
 import { useDocument } from '@/modules/documents/composables/useDocument';
 import useUsers from '@/modules/documents/composables/useUsers';
 import { useRoute } from 'vue-router';
 
 
 const route = useRoute();
-
+const load = ref(false)
 const {
   // #region::Pagination
   currentPage,
@@ -96,8 +97,8 @@ const {
   getPage,
   setPerPage,
   docs,
-  refetchDocs
-} = useCompanies();
+  refetchDocs,
+} = useDocs();
 
 
 // Estado local
@@ -175,6 +176,14 @@ const handleDocumentUpload = async (file: File, name: string) => {
     console.error('Error al subir el documento:', error);
   }
 };
+
+watch(
+  () => isUploading.value,
+  (newValue) => {
+    console.log('🚀 ~ newValue:', newValue)
+    load.value = newValue;
+  }
+);
 
 // onMounted(() => {});
 // onUnmounted(() => {});

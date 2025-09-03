@@ -79,7 +79,8 @@ const typeActivePassword = ref({
   private: true
 })
 
-const showPass = (name: 'password' | 'private') => {
+const showPass = (type:any, name: 'password' | 'private') => {
+  console.log('🚀 ~ showPass ~ type:', type)
   typeActivePassword.value = {
     ...typeActivePassword.value,
     [name]: !typeActivePassword.value[name]

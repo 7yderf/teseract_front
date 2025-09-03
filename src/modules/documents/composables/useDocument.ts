@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ApiService from '@/core/services/ApiService';
 import useStoreDocument from '../store/StoreDocument';
 import CryptoJS from 'crypto-js';
@@ -422,7 +422,7 @@ export function useDocument() {
     error: documentsStore.error,
     
     // Operation State
-    isUploading: uploadDocumentMutation.isPending,
+    isUploading: computed(() => uploadDocumentMutation.isPending.value),
     isSharing: shareDocumentMutation.isPending
   };
 }
