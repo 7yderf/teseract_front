@@ -75,7 +75,7 @@
       >
         <button
           type="submit"
-          class="form__submit-btn"
+          class=" w-full text-white font-semibold rounded-md bg-sky-500/75 px-4 py-2 hover:bg-sky-500 focus:outline-none"
         >
           Guardar
         </button>

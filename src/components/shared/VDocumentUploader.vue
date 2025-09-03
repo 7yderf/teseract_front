@@ -1,13 +1,11 @@
 <template>
   <BaseModal :show="isOpen" @close="$emit('update:isOpen', false)">
     <div class="upload-modal">
-      <h3 class="text-xl font-bold mb-4">Subir Documento Seguro</h3>
+      <h6 class="font-bold mb-4">Subir Documento Seguro</h6>
       
       <form @submit.prevent="handleUpload" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Nombre del documento
-          </label>
+          <label class="block  font-medium text-gray-700 mb-1"></label>
           <input
             v-model="documentName"
             type="text"
@@ -18,16 +16,29 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Seleccionar archivo
+          <label class="flex gap-4 text-2xl font-medium text-gray-700 mb-1">
+             <Icon icon="tabler:upload" /><span>Seleccionar archivo</span>
           </label>
-          <input
-            type="file"
-            @change="handleFileSelect"
-            class="w-full"
-            :disabled="isUploading"
-          >
-          <p class="mt-1 text-sm text-gray-500">
+          <div class="relative">
+            <input
+              type="file"
+              @change="handleFileSelect"
+              :disabled="isUploading"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              :class="{'cursor-not-allowed': isUploading}"
+            />
+            <div 
+              :class="[
+                'w-full text-center p-4 border-2 border-dashed rounded-md transition-all duration-200',
+                !selectedFile && !isUploading ? 'border-gray-200 hover:border-blue-400 hover:bg-blue-50' : '',
+                !selectedFile && !isUploading ? 'border-sky-500' : 'border-gray-200',
+                'text-gray-500'
+              ]"
+            >
+              {{ selectedFile?.name || 'haz clic para seleccionar' }}
+            </div>
+          </div>
+          <p class="mt-1 text-xl text-gray-500">
             El archivo será cifrado antes de subirse al servidor
           </p>
         </div>
@@ -66,6 +77,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import BaseModal from '@/components/shared/BaseModal.vue'
+import { Icon } from '@iconify/vue'
 
 interface Props {
   isOpen: boolean
@@ -111,3 +123,5 @@ const handleClose = () => {
   }
 }
 </script>
+
+

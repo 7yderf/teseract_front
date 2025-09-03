@@ -1,9 +1,9 @@
 <template>
 
 
-  <div class="w-full max-w-[1200px] mx-auto">
+  <div class="w-full max-w-[1200px] mx-auto mt-15">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">Documentos compartidos </h2>
+        <h2 class="text-[3.2rem] font-bold">Documentos compartidos </h2>
       </div>
     <SharedTable
      v-if="!isLoading && !isError && shared.length > 0"

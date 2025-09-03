@@ -59,7 +59,7 @@ const useAuth = () => {
   const registerMutation = useMutation({
     mutationFn: register,
     onSuccess: (data) => {
-      showAlert("success", data.meta.message);
+      showAlert("success", "Gracias por registrarte \n porfavor verifica tu correo y no compartas tu clave privada.");
       router.push("/");
     },
     onError: (error) => {

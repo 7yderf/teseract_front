@@ -1,6 +1,6 @@
 <template>
-  <div class="overflow-x-auto rounded-lg border border-gray-200">
-    <table class="min-w-full divide-y divide-gray-200">
+  <div class="overflow-x-auto rounded-lg border border-gray-200 ">
+    <table class="w-full min-w-[700px] divide-y divide-gray-200 ">
       <thead class="bg-gray-100">
         <tr class="text-sm font-semibold text-gray-800">
           <th class="whitespace-nowrap px-4 py-3">

@@ -1,9 +1,9 @@
 <template>
 
 
-  <div class="w-full max-w-[1200px] mx-auto">
+  <div class="w-full max-w-[1200px] mx-auto mt-15">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">Documentos Seguros</h2>
+        <h2 class="text-[3.2rem] font-bold">Documentos Seguros</h2>
         <button
           @click="showUploadModal = true"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"

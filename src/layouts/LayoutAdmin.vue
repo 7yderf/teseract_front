@@ -5,45 +5,26 @@ const { logout, sesion } = useAuth();
 
 </script>
 <template>
- <main class="admin">
-  <header class="admin__header">
-    <nav>
-      <ul>
-        <li><router-link  activeClass="bg-cyan-500" to="/documents">Documentos</router-link></li>
-        <li><router-link  activeClass="bg-cyan-500" to="/shared">Compartidos</router-link></li>
+ <main class="flex w-full  flex-col align-items-stretch">
+  <header class="bg-(--secondary-color) flex text-white py-4 font-semibold">
+    <nav class="flex max-w-[1200px]  w-full mx-auto justify-between items-center">
+      <ul class="flex items-center gap-4 ">
+        <li><router-link  class="text-white font-normal" activeClass="rounded-md bg-sky-500/75 px-4 py-2  opacity-100 focus:outline-none" to="/documents">Documentos</router-link></li>
+        <li><router-link  class="text-white font-normal" activeClass="rounded-md bg-sky-500/75 px-4 py-2  opacity-100 focus:outline-none" to="/shared">Compartidos</router-link></li>
       </ul>
+      <div class="flex items-center gap-4">
+        <p class="font-semibold">{{ sesion.user }}</p>
+        <button class="rounded-md bg-sky-500/75 px-4 py-2  opacity-100 focus:outline-none" type="button" @click="logout">Logout</button>
+      </div>
     </nav>
-    <div class="admin__logout">
-      <p>{{ sesion.user }}</p>
-      <button type="button" @click="logout">Logout</button>
-    </div>
+    
   </header>
-  <section class="admin__body">
+  <section class="flex-grow p-8">
     <router-view/>    
   </section>
 
 </main>
 </template>
 <style lang="scss" scoped>
-@import "@/assets/scss/Mixins";
-.admin{
-  @include flex(center, false, stretch);
-  flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  background-color: var(--bg-color);
-  &__header{
-    @include flex;
-    background-color: wheat;
-    height: 50px;
-  }
-  &__logout{
-    @include flex(center, 8px);
-    margin-left: auto;
-    padding: 8px;
-  }
-  &__body{
-    flex-grow: 1;
-  }
-}
+
 </style>

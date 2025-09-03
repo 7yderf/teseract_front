@@ -46,7 +46,7 @@
       </div>
       <slot name="register" />
       <div class="w-full pt-8">
-        <button type="submit" class="btn-primary">
+        <button type="submit" class=" w-full text-white font-semibold rounded-md bg-sky-500/75 px-4 py-2 hover:bg-sky-500 focus:outline-none">
           Iniciar Sesión
         </button>
       </div>

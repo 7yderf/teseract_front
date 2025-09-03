@@ -1,18 +1,18 @@
 <template>
   <BaseModal :show="show" @close="close">
     <div class="space-y-4">
-      <h2 class="text-lg font-semibold">Compartir documento</h2>
-      
+       <h6 class="font-bold mb-4">Compartir documento</h6>
+
       <form @submit.prevent="handleShare" class="space-y-4">
         <div class="space-y-2">
-          <label for="email" class="block text-sm font-medium text-gray-700">
+          <label for="email" class="block font-medium text-gray-700 mb-2">
             Email del destinatario
           </label>
           <select
             id="email"
             v-model="email"
             required
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-4"
             :disabled="isSharing"
           >
             <option value="" disabled selected>Selecciona un usuario</option>
@@ -30,7 +30,7 @@
           <button
             type="button"
             @click="close"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            class="px-4 py-2 font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             :disabled="isSharing"
           >
             Cancelar
@@ -39,7 +39,7 @@
             type="submit"
             :disabled="isSharing"
            
-            class="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none "
+            class="px-4 py-2 font-medium bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none "
           >
             {{ isSharing ? 'Compartiendo...' : 'Compartir' }}
           </button>

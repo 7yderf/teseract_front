@@ -3,8 +3,8 @@
     <h4 class="text-center">Bienvenido</h4>
     <Auth>
       <template #register>
-        <router-link class="" to="/recovery">
-          *Recuperar contraseña
+        <router-link class="font-semibold" to="/register">
+          Registrarse
         </router-link>
       </template>
     </Auth>
