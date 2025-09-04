@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import ApiService from "@/core/services/ApiService";
 import { storeToRefs } from "pinia";
 import { useStoreDocs } from "../store/StoreDocs";
-
+import { useErrorHandler } from "@/composables/useErrorsAlerts";
 
 const getDocuments = async ( perPage:any, currentPage:any ): Promise<any> => {
 
@@ -12,6 +12,7 @@ const getDocuments = async ( perPage:any, currentPage:any ): Promise<any> => {
 };
 
 const useDocs = () => {
+   const { handleError } = useErrorHandler();
   const store = useStoreDocs();
   const queryClient = useQueryClient();
   const { currentPage, from, lastPage, perPage, to, total, sortQuery, docs, filtesParams } =
@@ -26,7 +27,7 @@ const useDocs = () => {
 
   watch(error, (newError ) => {
     if(newError){
-      console.log('🚀 ~ useDocs ~ newError:', newError)
+      handleError(newError);
     }
   })
 

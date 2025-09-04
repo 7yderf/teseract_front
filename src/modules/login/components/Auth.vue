@@ -110,7 +110,7 @@ watch(
   () => isSuccess.value,
   (newValue) => {
     if (newValue) {
-      JwtService.encryptPrivateKey(privateK.value);
+      JwtService.encryptPrivateKey(privateK.value.trim());
     }
   }
 );
