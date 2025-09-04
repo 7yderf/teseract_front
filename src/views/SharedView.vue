@@ -17,8 +17,9 @@
 
   <div
     v-if="!isLoading && !isError && shared.length > 0"
-    class="flex justify-between pt-5">
+    class="flex flex-wrap justify-center sm:justify-between pt-5 my-4">
     <TablePerpage
+    class="mb-8 sm:mb-0"
     :per-page="perPage"
     :getPage="getPage"
     :setPerPage="setPerPage"

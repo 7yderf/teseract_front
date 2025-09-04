@@ -112,7 +112,8 @@ const typeActivePassword = ref({
   confirm_password: true,
 })
 
-const showPass = (name: keyof typeof typeActivePassword.value) => {
+const showPass = (type:any, name: keyof typeof typeActivePassword.value) => {
+  console.log('🚀 ~ showPass ~ type:', type)
   typeActivePassword.value = {
     ...typeActivePassword.value,
     [name]: !typeActivePassword.value[name]

@@ -2,7 +2,7 @@
 <Loader v-if="load" />
 
   <div class="w-full max-w-[1200px] mx-auto mt-15">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-wrap justify-between items-center mb-6">
         <h2 class="text-[3.2rem] font-bold">Documentos Seguros</h2>
         <button
           @click="showUploadModal = true"
@@ -29,8 +29,9 @@
 
   <div
     v-if="!isLoading && !isError && docs.length > 0"
-    class="flex justify-between pt-5">
+    class="flex flex-wrap justify-center sm:justify-between pt-5 my-4">
     <TablePerpage
+    class="mb-8 sm:mb-0"
     :per-page="perPage"
     :getPage="getPage"
     :setPerPage="setPerPage"
